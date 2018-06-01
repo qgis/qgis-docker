@@ -7,6 +7,7 @@ Work in progress.
 ```bash
 $ docker build --rm=true -t openquake/qgis-server:3 -f Dockerfile .
 ```
+You may skip this step. The container will be downloaded from the Docker Hub.
 
 ### Run the docker and map host data (development)
 
