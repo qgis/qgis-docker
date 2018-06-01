@@ -17,18 +17,6 @@ $ docker run -v $(pwd)/data:/var/www/data -d -p 8010:80 openquake/qgis-server:3
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
 
-`$(pwd)/data` must have the following structure:
-
-```
-data 
- |
- |-- <project_name>
-      |-- <project_name>.qgs
-```
-
-[oq-consolidate](https://github.com/gem/oq-consolidate) may helps you in exporting data suitable for QGIS server (consolidating project and layers). 
-
-
 #### Debug mode
 
 ```
@@ -47,3 +35,17 @@ $ docker-compose up -d --scale qgis-server=N
 ```
 
 Where N is the number of expected QGIS server workers.
+
+
+## Data dir structure
+
+`$(pwd)/data` must have the following structure:
+
+```
+data 
+ |
+ |-- <project_name>
+      |-- <project_name>.qgs
+```
+
+[oq-consolidate](https://github.com/gem/oq-consolidate) may helps you in exporting data suitable for QGIS server (consolidating project and layers). 
