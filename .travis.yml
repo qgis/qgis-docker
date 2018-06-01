@@ -1,0 +1,10 @@
+services: docker
+
+before_install:
+    - docker build -t openquake/qgis-server:3 -f Dockerfile . 
+
+install:
+    - docker run -d -v $(pwd)/test:/var/www/data -p 8010:80 openquake/qgis-server:3
+
+script:
+    - curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
