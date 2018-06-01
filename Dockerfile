@@ -3,7 +3,7 @@ FROM fedora:28
 MAINTAINER Daniele Viganò <daniele@openquake.org>
 
 RUN dnf -y install dnf-plugins-core xorg-x11-server-Xvfb && \
-    dnf copr enable -y dani/qgis3 && \
+    dnf copr enable -y dani/qgis && \
     dnf install -y nginx spawn-fcgi qgis-server && \
     dnf clean all
 
