@@ -37,7 +37,7 @@ $ docker-compose up -d --scale qgis-server=N
 Where N is the number of expected QGIS server workers.
 
 
-## Data dir structure
+### Data dir structure
 
 `$(pwd)/data` must have the following structure:
 
@@ -48,4 +48,9 @@ data
       |-- <project_name>.qgs
 ```
 
-[oq-consolidate](https://github.com/gem/oq-consolidate) may helps you in exporting data suitable for QGIS server (consolidating project and layers). 
+[oq-consolidate](https://github.com/gem/oq-consolidate) may helps you in exporting data suitable for QGIS server (consolidating project and layers).
+
+
+### Services provided
+
+This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does)
