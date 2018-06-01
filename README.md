@@ -15,7 +15,7 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 $ docker run -v $(pwd)/data:/var/www/data -d -p 8010:80 openquake/qgis-server:3
 ```
 
-`WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project>`.
+`WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
 
 `$(pwd)/data` must have the following structure:
 
