@@ -1,5 +1,5 @@
 # vi:syntax=dockerfile
-FROM fedora:28
+FROM fedora:27
 MAINTAINER Daniele Viganò <daniele@openquake.org>
 
 RUN dnf -y install dnf-plugins-core xorg-x11-server-Xvfb && \
