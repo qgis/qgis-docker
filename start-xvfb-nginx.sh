@@ -1,6 +1,7 @@
 #!/bin/bash
 
-/usr/bin/Xvfb :99 -ac -screen 0 1280x1024x16 +extension GLX +render -noreset 2>&1 >/dev/null &
+rm -f /tmp/.X99-lock
+/usr/bin/Xvfb :99 -ac -screen 0 1280x1024x16 +extension GLX +render -noreset >/dev/null &
 while ! pidof /usr/bin/Xvfb >/dev/null; do
     sleep 1
 done
