@@ -15,6 +15,7 @@ ADD start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
 RUN useradd -u 9999 qgis
 
 ENV QGIS_PREFIX_PATH /usr
+ENV QGIS_PLUGINPATH /io/plugins
 ENV QGIS_SERVER_LOG_FILE /tmp/qgis-server.log
 ENV QGIS_SERVER_LOG_LEVEL 0
 ENV QGIS_SERVER_PARALLEL_RENDERING true

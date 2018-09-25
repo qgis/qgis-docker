@@ -12,7 +12,7 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 ### Run the docker and map host data (development)
 
 ```
-$ docker run -v $(pwd)/data:/var/www/data -d -p 8010:80 openquake/qgis-server:3
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins-d -p 8010:80 openquake/qgis-server:3
 ```
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
@@ -20,7 +20,7 @@ $ docker run -v $(pwd)/data:/var/www/data -d -p 8010:80 openquake/qgis-server:3
 #### Debug mode
 
 ```
-$ docker run -v $(pwd)/data:/var/www/data -t -i --rm -p 8010:80 openquake/qgis-server:3 /bin/bash
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -t -i --rm -p 8010:80 openquake/qgis-server:3 /bin/bash
 ```
 
 ### Run the docker and map host data (via docker-compose)
@@ -50,6 +50,16 @@ data
 
 [oq-consolidate](https://github.com/gem/oq-consolidate) may helps you in exporting data suitable for QGIS server (consolidating project and layers).
 
+`$(pwd)/plugins` must have the following structure:
+
+```
+plugins
+ |
+ |-- <plugin_name>
+      |-- <plugin_code>.py
+      |-- metadata.txt
+      |-- __init__.py
+```
 
 ### Services provided
 
