@@ -4,7 +4,7 @@ before_install:
     - docker build -t openquake/qgis-server:3 -f Dockerfile . 
 
 install:
-    - docker run -d -v $(pwd)/test/data:/var/www/data -p 8010:80 --name qgis-server openquake/qgis-server:3
+    - docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server:3
 
 before_script:
     # Get the installed package for qgis-server

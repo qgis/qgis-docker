@@ -19,7 +19,8 @@ services:
     networks:
      - qgis-server-net
     volumes:
-     - ./data:/var/www/data
+     - ./data:/io/data
+     - ./plugins:/io/plugins
     restart: always
 
 networks:
