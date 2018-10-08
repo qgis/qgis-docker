@@ -1,6 +1,10 @@
 #!/bin/bash
 
 cleanup() {
+    # SIGTERM is propagated to children.
+    # Timeout is managed directly by Docker, via it's '-t' flag:
+    # if SIGTERM does not teminate the entrypoint, after the time
+    # defined by '-t' (default 10 secs) the container is killed
     kill $XVFB_PID $QGIS_PID
 }
 
