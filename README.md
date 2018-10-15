@@ -1,7 +1,5 @@
 ## QGIS 3 server via Docker
 
-Work in progress.
-
 ### Build the container
 
 ```bash
@@ -9,7 +7,7 @@ $ docker build --rm=true -t openquake/qgis-server:3 -f Dockerfile .
 ```
 You may skip this step. The container will be downloaded from the Docker Hub.
 
-### Run the docker and map host data (development)
+### Run the docker and map host data
 
 ```
 $ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins-d -p 8010:80 openquake/qgis-server:3
