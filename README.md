@@ -1,5 +1,10 @@
 ## QGIS 3 server via Docker
 
+### Available tags
+
+- `openquake/qgis-server:3` | `openquake/qgis-server:3.4` | `openquake/qgis-server:3.4.0`: Based on latest QGIS 3.4
+- `openquake/qgis-server:3.2` | `openquake/qgis-server:3.2.3`: Based on QGIS 3.2
+
 ### Build the container
 
 ```bash
