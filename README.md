@@ -1,5 +1,22 @@
 ## QGIS 3 server via Docker
 
+[![Build Status](https://travis-ci.org/gem/oq-qgis-server.svg?branch=master)](https://travis-ci.org/gem/oq-qgis-server)
+
+### General information
+
+The Docker image is built using *Fedora 27* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/.
+It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
+
+### Services provided
+
+This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does).
+A sampleg Nginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
+
+### Available tags
+
+- `openquake/qgis-server:latest` | `openquake/qgis-server:3` | `openquake/qgis-server:3.4` | `openquake/qgis-server:3.4.0`: Based on latest **QGIS 3.4**
+- `openquake/qgis-server:3.2` | `openquake/qgis-server:3.2.3`: Based on **QGIS 3.2**
+
 ### Build the container
 
 ```bash
@@ -58,7 +75,3 @@ plugins
       |-- metadata.txt
       |-- __init__.py
 ```
-
-### Services provided
-
-This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does)
