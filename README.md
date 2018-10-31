@@ -10,7 +10,7 @@ It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP
 ### Services provided
 
 This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does).
-A sample Inginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
+A sampleg Nginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
 
 ### Available tags
 
