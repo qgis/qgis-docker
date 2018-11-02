@@ -44,6 +44,10 @@ $ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins-d -p 8010:80 
 $ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -t -i --rm -p 8010:80 openquake/qgis-server:3 /bin/bash
 ```
 
+#### Logs
+
+QGIS server log can be found at `/tmp/qgis-server.log`.
+
 ### Run the docker and map host data (via docker-compose)
 
 Adjust first the configuration in `conf/nginx.conf` with the proper number of expected workers
