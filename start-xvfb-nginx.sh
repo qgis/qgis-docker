@@ -35,6 +35,6 @@ while ! pidof /usr/bin/Xvfb >/dev/null; do
     sleep 1
 done
 XVFB_PID=$(pidof /usr/bin/Xvfb)
-spawn-fcgi -u qgis -g qgis -d /tmp -P /tmp/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi
+spawn-fcgi -n -u qgis -g qgis -d /tmp -P /tmp/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi &
 QGIS_PID=$(pidof /usr/libexec/qgis/qgis_mapserv.fcgi)
 exec nginx -g "daemon off;";
