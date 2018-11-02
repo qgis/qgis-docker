@@ -60,7 +60,6 @@ Default log level is set to `warning`. Log level can be increased during contain
 
 ```
 $ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3
-
 ```
 
 ### Run the docker and map host data (via docker-compose)
