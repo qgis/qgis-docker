@@ -33,20 +33,35 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 ### Run the docker and map host data
 
 ```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -d -p 8010:80 openquake/qgis-server:3
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3
 ```
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
 
-#### Debug mode
+#### Access the container via bash
 
 ```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -t -i --rm -p 8010:80 openquake/qgis-server:3 /bin/bash
+$ docker exec -ti qgis-server /bin/bash
 ```
 
-#### Logs
+where `qgis-server` is the name of the container.
 
-QGIS server log can be found at `/tmp/qgis-server.log`.
+#### Logs and debugging
+
+QGIS server log can retreived via `docker logs`
+
+```
+$ docker logs [-f] qgis-server
+```
+
+where `qgis-server` is the name of the container.
+
+Default log level is set to `warning`. Log level can be increased during container deployment passing the `-e QGIS_SERVER_LOG_LEVEL=0` option:
+
+```
+$ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3
+
+```
 
 ### Run the docker and map host data (via docker-compose)
 
@@ -85,3 +100,13 @@ plugins
       |-- metadata.txt
       |-- __init__.py
 ```
+
+### Runtime customizations
+
+The following variables can be customized during container deployment:
+
+- `QGIS_SERVER_LOG_LEVEL`: default is `1`
+- `QGIS_SERVER_PARALLEL_RENDERING`: default is `true`
+- `QGIS_SERVER_MAX_THREADS`: default is `2`
+
+See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/user_manual/working_with_ogc/server/config.html#qgis-server-log-level) for further details.
