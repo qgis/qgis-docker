@@ -17,6 +17,12 @@ A sampleg Nginx configuration for using it as a *FastCGI* backend is also [provi
 - `openquake/qgis-server:latest` | `openquake/qgis-server:3` | `openquake/qgis-server:3.4` | `openquake/qgis-server:3.4.0`: Based on latest **QGIS 3.4**
 - `openquake/qgis-server:3.2` | `openquake/qgis-server:3.2.3`: Based on **QGIS 3.2**
 
+Example:
+
+```bash
+$ docker pull openquake/qgis-server:3.4
+```
+
 ### Build the container
 
 ```bash
