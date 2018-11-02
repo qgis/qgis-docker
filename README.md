@@ -33,7 +33,7 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 ### Run the docker and map host data
 
 ```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins-d -p 8010:80 openquake/qgis-server:3
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -d -p 8010:80 openquake/qgis-server:3
 ```
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
