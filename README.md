@@ -109,3 +109,14 @@ The following variables can be customized during container deployment:
 - `QGIS_SERVER_MAX_THREADS`: default is `2`
 
 See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/user_manual/working_with_ogc/server/config.html#qgis-server-log-level) for further details.
+
+It is also possible to customized the ID of the user running QGIS server processes when it is required to write to host volumes (see [notes](#notes)]:
+
+- `QGIS_USER`: default is `nginx`
+
+
+## Notes
+
+GeoPackages do not play well with multiple processes having gpkg files opened in `rw` mode. By default QGIS server processes lack write permission on `/io/data`.
+If you it required to let QGIS server write data to `/io/data` make sure that either you are using a process-safe datastore (i.e. a Postgres backend) or you are
+limiting horizontal one container only at the time. QGIS server user can be customized via the `QGIS_USER` environment variable.

@@ -35,6 +35,7 @@ while ! pidof /usr/bin/Xvfb >/dev/null; do
     sleep 1
 done
 XVFB_PID=$(pidof /usr/bin/Xvfb)
-spawn-fcgi -n -u qgis -g qgis -d /tmp -P /tmp/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi &
+# To avoid issues with GeoPackages when scaling out QGIS should not run as root
+spawn-fcgi -n -u ${QGIS_USER:-nginx} -g ${QGIS_USER:-nginx} -d /tmp -P /tmp/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi &
 QGIS_PID=$(pidof /usr/libexec/qgis/qgis_mapserv.fcgi)
 exec nginx -g "daemon off;";

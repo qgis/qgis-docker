@@ -28,6 +28,8 @@ services:
     networks:
      - qgis-server-net
     restart: always
+    depends_on:
+     - qgis-server
   qgis-server:
     image: "openquake/qgis-server:3"
     environment:
@@ -36,7 +38,9 @@ services:
     networks:
      - qgis-server-net
     volumes:
-     - ./data:/io/data
+     # Data should be mount RO when working
+     # with GeoPackages and more than one QGIS container
+     - ./data:/io/data:ro
      - ./plugins:/io/plugins
     restart: always
 

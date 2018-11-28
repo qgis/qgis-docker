@@ -31,8 +31,6 @@ RUN dnf -y install dnf-plugins-core xorg-x11-server-Xvfb && \
 ADD conf/qgis-server-nginx.conf /etc/nginx/nginx.conf
 ADD start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
 
-RUN useradd -u 9999 qgis
-
 ENV QGIS_PREFIX_PATH /usr
 ENV QGIS_PLUGINPATH /io/plugins
 ENV QGIS_SERVER_LOG_LEVEL 1
