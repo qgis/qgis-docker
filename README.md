@@ -20,20 +20,20 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 Example:
 
 ```bash
-$ docker pull openquake/qgis-server:3.4
+$ docker pull openquake/qgis-server:3.4.2
 ```
 
 ### Build the container
 
 ```bash
-$ docker build --rm=true -t openquake/qgis-server:3 -f Dockerfile .
+$ docker build --rm=true -t openquake/qgis-server:3.4.2 -f Dockerfile .
 ```
 You may skip this step. The container will be downloaded from the Docker Hub.
 
 ### Run the docker and map host data
 
 ```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3.4.2
 ```
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
@@ -59,7 +59,7 @@ where `qgis-server` is the name of the container.
 Default log level is set to `warning`. Log level can be increased during container deployment passing the `-e QGIS_SERVER_LOG_LEVEL=0` option:
 
 ```
-$ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3
+$ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3.4.2
 ```
 
 ### Run the docker and map host data (via docker-compose)
