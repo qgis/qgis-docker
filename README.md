@@ -14,8 +14,8 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 ### Available tags
 
-- `openquake/qgis-server:latest` | `openquake/qgis-server:3` | `openquake/qgis-server:3.4` | `openquake/qgis-server:3.4.1` | `openquake/qgis-server:3.4.2` | `openquake/qgis-server:3.4.3`: Based on latest **QGIS 3.4**
-- `openquake/qgis-server:3.2` | `openquake/qgis-server:3.2.3`: Based on **QGIS 3.2**
+- `openquake/qgis-server:latest` | `openquake/qgis-server:3` | `openquake/qgis-server:3.4` | `openquake/qgis-server:3.4.4`: Based on **latest** QGIS 3.4
+- `openquake/qgis-server:3.4.1` | `openquake/qgis-server:3.4.2` | `openquake/qgis-server:3.4.3`: Based on **old** QGIS 3.4 releases
 
 Example:
 
