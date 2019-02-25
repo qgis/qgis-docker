@@ -18,11 +18,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM fedora:27
+FROM fedora:29
 MAINTAINER Daniele Viganò <daniele@openquake.org>
 
+ARG repo=qgis
+
 RUN dnf -y install dnf-plugins-core xorg-x11-server-Xvfb && \
-    dnf copr enable -y dani/qgis && \
+    dnf copr enable -y dani/$repo && \
     dnf install -y nginx spawn-fcgi qgis-server && \
     dnf clean all
 

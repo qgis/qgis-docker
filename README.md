@@ -4,8 +4,11 @@
 
 ### General information
 
-The Docker image is built using *Fedora 27* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/.
+The Docker image is built using *Fedora 29* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.6) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.4 LTR).
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
+
+To be able to run these containers you need **Docker >= 18.04** or you need to run containers in 'privileged' mode since the `statx` syscall is required by Qt 5.11.
+See https://github.com/gem/oq-qgis-server/issues/1
 
 ### Services provided
 
@@ -25,9 +28,18 @@ $ docker pull openquake/qgis-server:3.4
 
 ### Build the container
 
+#### QGIS 3.6
+
 ```bash
-$ docker build --rm=true -t openquake/qgis-server:3.4 -f Dockerfile .
+$ docker build -t openquake/qgis-server:3.6 -f Dockerfile .
 ```
+
+#### QGIS 3.4 LTR
+
+```bash
+$ docker build --build-arg repo=qgis-ltr -t openquake/qgis-server:3.4 -f Dockerfile .
+```
+
 You may skip this step. The container will be downloaded from the Docker Hub.
 
 ### Run the docker and map host data
