@@ -17,13 +17,27 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 ### Available tags
 
-- `openquake/qgis-server:latest` | `openquake/qgis-server:3` | `openquake/qgis-server:3.4` | `openquake/qgis-server:3.4.4`: Based on **latest** QGIS 3.4
-- `openquake/qgis-server:3.4.1` | `openquake/qgis-server:3.4.2` | `openquake/qgis-server:3.4.3`: Based on **old** QGIS 3.4 releases
+Image name: `openquake/qgis-server`
+
+### QGIS 3.6
+- `latest`
+- `3.6`
+- `3.6.0`
+
+### QGIS 3.4 LTR
+- `ltr`
+- `3.4`
+- `3.4.5`
+- `3.4.4`
+- `3.4.3`
+- `3.4.2`
+- `3.4.1`
+- `3.4.0`
 
 Example:
 
 ```bash
-$ docker pull openquake/qgis-server:3.4
+$ docker pull openquake/qgis-server:ltr
 ```
 
 ### Build the container

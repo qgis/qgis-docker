@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 FROM fedora:29
-MAINTAINER Daniele Viganò <daniele@openquake.org>
+LABEL maintainer="Daniele Viganò <daniele@openquake.org>"
 
 ARG repo=qgis
 
