@@ -8,7 +8,7 @@ The Docker image is built using *Fedora 29* and QGIS RPMs from https://copr.fedo
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 To be able to run these containers you need **Docker >= 18.04** or you need to run containers in 'privileged' mode since the `statx` syscall is required by Qt 5.11.
-See https://github.com/gem/oq-qgis-server/issues/1
+See https://github.com/gem/oq-qgis-server/issues/1 for further details.
 
 ### Services provided
 
@@ -20,14 +20,10 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 Image name: `openquake/qgis-server`
 
 ### QGIS 3.6
-- `latest`
-- `3.6`
-- `3.6.0`
+- `latest` | `3.6` | `3.6.0`
 
 ### QGIS 3.4 LTR
-- `ltr`
-- `3.4`
-- `3.4.5`
+- `ltr` | `3.4` | `3.4.5`
 - `3.4.4`
 - `3.4.3`
 - `3.4.2`
