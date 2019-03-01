@@ -15,6 +15,8 @@ As a workaround you can run containers in 'privileged' mode, however this is hig
 
 See https://github.com/gem/oq-qgis-server/issues/1 for further details.
 
+Containers are not tested on hosts running OSes other than Linux.
+
 ### Services provided
 
 This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does).
