@@ -1,14 +1,24 @@
 services: docker
 
-before_install:
-    - docker build -t openquake/qgis-server:3 -f Dockerfile . 
+jobs:
+  include:
+  - stage: build
+    env: FEDORA
+    before_install:
+      - docker build -t openquake/qgis-server -f Dockerfile.fedora .
+    before_script:
+      # Get the installed package for qgis-server
+      - docker exec -ti qgis-server rpm -q qgis-server
+  - stage: build
+    env: UBUNTU
+    before_install:
+      - docker build -t openquake/qgis-server -f Dockerfile.ubuntu .
+    before_script:
+      # Get the installed package for qgis-server
+      - docker exec -ti qgis-server dpkg -l qgis-server
 
 install:
-    - docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server:3
-
-before_script:
-    # Get the installed package for qgis-server
-    - docker exec -ti qgis-server rpm -q qgis-server
+  - docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
 
 script:
-    - sleep 5 && curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+  - sleep 5 && curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception

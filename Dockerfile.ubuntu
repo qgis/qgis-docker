@@ -18,20 +18,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM fedora:29
+FROM ubuntu:bionic
 LABEL maintainer="Daniele Viganò <daniele@openquake.org>"
 
-ARG repo=qgis
+ARG repo=ubuntu
 
-RUN dnf -y install dnf-plugins-core xorg-x11-server-Xvfb && \
-    dnf copr enable -y dani/$repo && \
-    dnf install -y nginx spawn-fcgi qgis-server && \
-    dnf clean all
+RUN apt update && apt install -y gnupg && \
+    echo "deb     http://qgis.org/$repo bionic main" >> /etc/apt/sources.list && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-key CAEB3DC3BDF7FB45 && \
+    apt update && \
+    DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx spawn-fcgi qgis-server python-qgis && \
+    apt clean all
 
 # This part is kept to allow the container to be used in
 # standalone mode, without composing it with 'nginx'
 ADD conf/qgis-server-nginx.conf /etc/nginx/nginx.conf
 ADD start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
+# Adapt configurations for Ubuntu
+RUN sed -i 's/user nginx/user www-data/' /etc/nginx/nginx.conf && \
+    sed -i 's/nginx/www-data/g; s|/usr/libexec/qgis|/usr/lib/cgi-bin|g' /usr/local/bin/start-xvfb-nginx.sh
 
 ENV QGIS_PREFIX_PATH /usr
 ENV QGIS_PLUGINPATH /io/plugins
