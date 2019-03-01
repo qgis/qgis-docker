@@ -43,7 +43,10 @@ ENV QGIS_SERVER_MAX_THREADS 2
 ENV QT_GRAPHICSSYSTEM raster
 ENV DISPLAY :99
 
-WORKDIR /tmp
+RUN mkdir /var/lib/qgis && \
+    chmod 1777 /var/lib/qgis
+ENV HOME /var/lib/qgis
+WORKDIR $HOME
 
 EXPOSE 80
 CMD /usr/local/bin/start-xvfb-nginx.sh
