@@ -12,8 +12,8 @@ The *Fedora* container is generally more tested.
 
 ### Requisites
 
-To be able to run *Fedora* containers you need **Docker >= 18.04** with `seccomp` support for the `statx` syscall required by Qt 5.10+. This is gnerally included in **libseccomp >= 2.3.3** and
-a kernel with `statx` support; generally any kernel newer than 4.11 should be ok. Please check with your vendor.
+To be able to run *Fedora* containers you need **Docker >= 18.04** with `seccomp` support for the `statx` syscall required by Qt 5.10+. This is generally included in **libseccomp >= 2.3.3**;
+a kernel with `statx` support is also required; any kernel newer than 4.11 should be ok. Please check with your vendor.
 
 As a fallback for systems lacking `statx` support containers built on top of *Ubuntu 18.04 LTS (Bionic)* are also provided for newer releases.
 
