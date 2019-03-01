@@ -34,7 +34,7 @@ Image name: `openquake/qgis-server`
 - `stable` | `3.6` | `3.6.0` | `stable-ubuntu` | `3.6-ubuntu` | `3.6.0-ubuntu`
 
 ### QGIS 3.4 LTR
-- `ltr` | `3.4` | `3.4.5` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.5-ubuntu
+- `ltr` | `3.4` | `3.4.5` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.5-ubuntu`
 - `3.4.4`
 - `3.4.3`
 - `3.4.2`
