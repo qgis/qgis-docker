@@ -64,7 +64,7 @@ $ docker build -t openquake/qgis-server:3.6 -f Dockerfile.ubuntu .
 # Fedora based container
 $ docker build --build-arg repo=qgis-ltr -t openquake/qgis-server:3.4 -f Dockerfile.fedora .
 # Ubuntu based container
-$ docker build --build-arg repo=qgis-ltr -t openquake/qgis-server:3.4 -f Dockerfile.ubuntu .
+$ docker build --build-arg repo=ubuntu-ltr -t openquake/qgis-server:3.4 -f Dockerfile.ubuntu .
 ```
 
 You may skip this step. The container will be downloaded from the Docker Hub.
