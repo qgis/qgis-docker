@@ -7,8 +7,15 @@
 The Docker image is built using *Fedora 29* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.6) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.4 LTR).
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
-To be able to run these containers you need **Docker >= 18.04** or you need to run containers in 'privileged' mode since the `statx` syscall is required by Qt 5.11.
+### Requisites
+
+To be able to run these containers you need **Docker >= 18.04** with `seccomp` support for the `statx` syscall required by Qt 5.10+. This is gnerally included in **libseccomp >= 2.3.3**.
+
+As a workaround you can run containers in 'privileged' mode, however this is highly discouraged. Your kernel may also lack from `statx` support. Please check with your vendor.
+
 See https://github.com/gem/oq-qgis-server/issues/1 for further details.
+
+Containers are not tested on hosts running OSes other than Linux.
 
 ### Services provided
 
