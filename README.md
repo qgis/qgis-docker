@@ -7,11 +7,15 @@
 The Docker image is built using *Fedora 29* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.6) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.4 LTR).
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
+A fallback image running *Ubuntu 18.04* is also provided as fallback for systems lacking support for `statx` syscall. See the [Requisites](#Requisites) section.
+The *Fedora* container is generally more tested.
+
 ### Requisites
 
-To be able to run these containers you need **Docker >= 18.04** with `seccomp` support for the `statx` syscall required by Qt 5.10+. This is gnerally included in **libseccomp >= 2.3.3**.
+To be able to run *Fedora* containers you need **Docker >= 18.04** with `seccomp` support for the `statx` syscall required by Qt 5.10+. This is generally included in **libseccomp >= 2.3.3**;
+a kernel with `statx` support is also required; any kernel newer than 4.11 should be ok. Please check with your vendor.
 
-As a workaround you can run containers in 'privileged' mode, however this is highly discouraged. Your kernel may also lack from `statx` support. Please check with your vendor.
+As a fallback for systems lacking `statx` support containers built on top of *Ubuntu 18.04 LTS (Bionic)* are also provided for newer releases.
 
 See https://github.com/gem/oq-qgis-server/issues/1 for further details.
 
@@ -27,10 +31,10 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 Image name: `openquake/qgis-server`
 
 ### QGIS 3.6
-- `latest` | `3.6` | `3.6.0`
+- `stable` | `3.6` | `3.6.0` | `stable-ubuntu` | `3.6-ubuntu` | `3.6.0-ubuntu`
 
 ### QGIS 3.4 LTR
-- `ltr` | `3.4` | `3.4.5`
+- `ltr` | `3.4` | `3.4.5` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.5-ubuntu`
 - `3.4.4`
 - `3.4.3`
 - `3.4.2`
@@ -48,13 +52,19 @@ $ docker pull openquake/qgis-server:ltr
 #### QGIS 3.6
 
 ```bash
-$ docker build -t openquake/qgis-server:3.6 -f Dockerfile .
+# Fedora based container
+$ docker build -t openquake/qgis-server:3.6 -f Dockerfile.fedora .
+# Ubuntu based container
+$ docker build -t openquake/qgis-server:3.6 -f Dockerfile.ubuntu .
 ```
 
 #### QGIS 3.4 LTR
 
 ```bash
-$ docker build --build-arg repo=qgis-ltr -t openquake/qgis-server:3.4 -f Dockerfile .
+# Fedora based container
+$ docker build --build-arg repo=qgis-ltr -t openquake/qgis-server:3.4 -f Dockerfile.fedora .
+# Ubuntu based container
+$ docker build --build-arg repo=ubuntu-ltr -t openquake/qgis-server:3.4 -f Dockerfile.ubuntu .
 ```
 
 You may skip this step. The container will be downloaded from the Docker Hub.
