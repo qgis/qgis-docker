@@ -24,7 +24,7 @@ cleanup() {
     # Timeout is managed directly by Docker, via it's '-t' flag:
     # if SIGTERM does not teminate the entrypoint, after the time
     # defined by '-t' (default 10 secs) the container is killed
-    kill $XVFB_PID $QGIS_PID
+    kill $XVFB_PID $NGINX_PID
 }
 
 trap cleanup SIGINT SIGTERM
@@ -35,7 +35,7 @@ while ! pidof /usr/bin/Xvfb >/dev/null; do
     sleep 1
 done
 XVFB_PID=$(pidof /usr/bin/Xvfb)
+nginx
+NGINX_PID=$(pidof /usr/bin/nginx)
 # To avoid issues with GeoPackages when scaling out QGIS should not run as root
-spawn-fcgi -n -u ${QGIS_USER:-nginx} -g ${QGIS_USER:-nginx} -d /var/lib/qgis -P /run/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi &
-QGIS_PID=$(pidof /usr/libexec/qgis/qgis_mapserv.fcgi)
-exec nginx -g "daemon off;";
+exec spawn-fcgi -n -u ${QGIS_USER:-nginx} -g ${QGIS_USER:-nginx} -d /var/lib/qgis -P /run/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi
