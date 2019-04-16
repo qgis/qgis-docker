@@ -143,6 +143,14 @@ plugins
 
 The following variables can be customized during container deployment:
 
+#### Nginx
+
+- `SKIP_NGINX`: deault is `false`
+
+When `SKIP_NGINX` is set the embedded copy of Nginx will not be started and an external reverse proxy is then required to access the FastCGI QGIS backend.
+
+#### QGIS
+
 - `QGIS_SERVER_LOG_LEVEL`: default is `1`
 - `QGIS_SERVER_PARALLEL_RENDERING`: default is `true`
 - `QGIS_SERVER_MAX_THREADS`: default is `2`
