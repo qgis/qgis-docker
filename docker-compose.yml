@@ -2,7 +2,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 #
 # oq-qgis-server
-# Copyright (C) 2018 GEM Foundation
+# Copyright (C) 2018-2019 GEM Foundation
 #
 # oq-qgis-server is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,8 @@ services:
   qgis-server:
     image: "openquake/qgis-server:3"
     environment:
+      # Do not run the embedded copy of nginx
+      SKIP_NGINX: "true"
       QGIS_SERVER_PARALLEL_RENDERING: "true"
       QGIS_SERVER_MAX_THREADS: 4
     networks:
