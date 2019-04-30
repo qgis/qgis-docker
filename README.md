@@ -151,7 +151,7 @@ plugins
       |-- __init__.py
 ```
 
-Custom fonts are loaded into `/usr/share/fonts`. `fc-cache` is run at container deployment.
+Custom fonts are loaded into `/usr/share/fonts`. `fc-cache` is run when container is started.
 
 ### Runtime customizations
 
