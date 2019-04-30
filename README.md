@@ -76,10 +76,18 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 ### Run the docker and map host data
 
 ```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3.4
+$ docker run -v $(pwd)/data:/io/data -v --name qgis-server -d -p 8010:80 openquake/qgis-server:3.4
 ```
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
+
+#### Plugins and fonts (optional)
+
+Plugins and custom fonts can be optionally exposed from host to the containers:
+
+```
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -v $(pwd)/fonts:/usr/share/fonts --name qgis-server -d -p 8010:80 openquake/qgis-server:3.4
+```
 
 #### Access the container via bash
 
@@ -142,6 +150,8 @@ plugins
       |-- metadata.txt
       |-- __init__.py
 ```
+
+Custom fonts are loaded into `/usr/share/fonts`. `fc-cache` is run when container is started.
 
 ### Runtime customizations
 

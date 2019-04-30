@@ -38,6 +38,8 @@ waitfor() {
 trap cleanup SIGINT SIGTERM
 
 rm -f /tmp/.X99-lock
+# Update font cache
+fc-cache
 /usr/bin/Xvfb :99 -ac -screen 0 1280x1024x16 +extension GLX +render -noreset >/dev/null &
 XVFB_PID=$(waitfor /usr/bin/Xvfb)
 # Do not start NGINX if environment variable '$SKIP_NGINX' is set

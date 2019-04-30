@@ -44,6 +44,7 @@ services:
      # with GeoPackages and more than one QGIS container
      - ./data:/io/data:ro
      - ./plugins:/io/plugins
+     - ./fonts:/usr/share/fonts
     restart: always
 
 networks:
