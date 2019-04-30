@@ -31,11 +31,13 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 Image name: `openquake/qgis-server`
 
 ### QGIS 3.6
-- `stable` | `3.6` | `3.6.1` | `stable-ubuntu` | `3.6-ubuntu` | `3.6.1-ubuntu`
+- `stable` | `3.6` | `3.6.2` | `stable-ubuntu` | `3.6-ubuntu` | `3.6.2-ubuntu`
+- `3.6.1` | `3.6.1-ubuntu`
 - `3.6.0` | `3.6.0-ubuntu`
 
 ### QGIS 3.4 LTR
-- `ltr` | `3.4` | `3.4.6` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.6-ubuntu`
+- `ltr` | `3.4` | `3.4.7` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.7-ubuntu`
+- `3.4.6` | `3.4.6-ubuntu`
 - `3.4.5` | `3.4.5-ubuntu`
 - `3.4.4`
 - `3.4.3`
@@ -159,9 +161,11 @@ When `SKIP_NGINX` is set the embedded copy of Nginx will not be started and an e
 
 See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/user_manual/working_with_ogc/server/config.html#qgis-server-log-level) for further details.
 
-It is also possible to customized the ID of the user running QGIS server processes when it is required to write to host volumes (see [notes](#notes)]:
+It is also possible to customized the ID of the user running QGIS server processes when it is required to write to host volumes (see [notes](#notes)):
 
-- `QGIS_USER`: default is `nginx`
+- `QGIS_USER`: default is `nginx`, a numerical id must be proivided
+
+Example: `docker run -e QGIS_USER=1000` or `docker run -e QGIS_USER=$(id -u)`
 
 
 ## Notes
