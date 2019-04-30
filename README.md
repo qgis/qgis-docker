@@ -165,7 +165,7 @@ It is also possible to customized the ID of the user running QGIS server process
 
 - `QGIS_USER`: default is `nginx`, a numerical id must be proivided
 
-Example: `docker run -e QGIS_USER=1000` or `docker run -e QGIS_USER=$(id -u)`
+Example: `docker run -e QGIS_USER=1000` or `docker run -e QGIS_USER=$(id -u qgis)`
 
 
 ## Notes
