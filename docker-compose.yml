@@ -45,6 +45,7 @@ services:
      - ./data:/io/data:ro
      - ./plugins:/io/plugins
      - ./fonts:/usr/share/fonts
+     - ./svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg
     restart: always
 
 networks:

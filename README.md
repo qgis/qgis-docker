@@ -81,10 +81,29 @@ $ docker run -v $(pwd)/data:/io/data -v --name qgis-server -d -p 8010:80 openqua
 
 `WMS` and `WFS` will be published at `http://localhost:8010/ogc/<project_name>`.
 
-#### Plugins and fonts (optional)
+#### Plugins, fonts and SVG symbols (optional)
 
-Plugins and custom fonts can be optionally exposed from host to the containers:
+Plugins custom fonts and SVG can be optionally exposed from host to the containers:
 
+##### Plugins
+
+```
+-v $(pwd)/plugins:/io/plugins
+```
+
+##### Fonts
+
+```
+-v $(pwd)/fonts:/usr/share/fonts
+```
+
+#### SVG symbols
+
+```
+-v $(pwd)/svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg
+```
+
+Example:
 ```
 $ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -v $(pwd)/fonts:/usr/share/fonts --name qgis-server -d -p 8010:80 openquake/qgis-server:3.4
 ```
