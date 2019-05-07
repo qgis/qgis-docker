@@ -38,7 +38,6 @@ ADD start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
 RUN sed -i 's/user nginx/user www-data/' /etc/nginx/nginx.conf && \
     sed -i 's/-nginx/-www-data/g; s|/usr/libexec/qgis|/usr/lib/cgi-bin|g' /usr/local/bin/start-xvfb-nginx.sh
 
-ENV HOME /var/lib/qgis
 ENV QGIS_PREFIX_PATH /usr
 ENV QGIS_PLUGINPATH /io/plugins
 ENV QGIS_SERVER_LOG_LEVEL 1
@@ -48,6 +47,7 @@ ENV QGIS_SERVER_MAX_THREADS 2
 
 ENV QT_GRAPHICSSYSTEM raster
 ENV DISPLAY :99
+ENV HOME /var/lib/qgis
 
 RUN mkdir $HOME && \
     chmod 1777 $HOME
