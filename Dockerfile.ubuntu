@@ -47,10 +47,10 @@ ENV QGIS_SERVER_MAX_THREADS 2
 
 ENV QT_GRAPHICSSYSTEM raster
 ENV DISPLAY :99
-
-RUN mkdir /var/lib/qgis && \
-    chmod 1777 /var/lib/qgis
 ENV HOME /var/lib/qgis
+
+RUN mkdir $HOME && \
+    chmod 1777 $HOME
 WORKDIR $HOME
 
 EXPOSE 80

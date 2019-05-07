@@ -49,6 +49,6 @@ if [ -z $SKIP_NGINX ]; then
     NGINX_PID=$(waitfor /usr/sbin/nginx)
 fi
 # To avoid issues with GeoPackages when scaling out QGIS should not run as root
-spawn-fcgi -n -u ${QGIS_USER:-nginx} -g ${QGIS_USER:-nginx} -d /var/lib/qgis -P /run/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi &
+spawn-fcgi -n -u ${QGIS_USER:-nginx} -g ${QGIS_USER:-nginx} -d ${HOME:-/var/lib/qgis} -P /run/qgis.pid -p 9993 -- /usr/libexec/qgis/qgis_mapserv.fcgi &
 QGIS_PID=$(waitfor /usr/libexec/qgis/qgis_mapserv.fcgi)
 wait $QGIS_PID
