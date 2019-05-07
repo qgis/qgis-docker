@@ -168,8 +168,10 @@ When `SKIP_NGINX` is set the embedded copy of Nginx will not be started and an e
 - `QGIS_SERVER_LOG_LEVEL`: default is `1`
 - `QGIS_SERVER_PARALLEL_RENDERING`: default is `true`
 - `QGIS_SERVER_MAX_THREADS`: default is `2`
+- `QGIS_SERVER_WMS_MAX_WIDTH`: not set by default
+- `QGIS_SERVER_WMS_MAX_WIDTH`: not set by default
 
-See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/user_manual/working_with_ogc/server/config.html#qgis-server-log-level) for further details.
+See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/user_manual/working_with_ogc/server/config.html) for further details.
 
 It is also possible to customized the ID of the user running QGIS server processes when it is required to write to host volumes (see [notes](#notes)):
 
