@@ -53,5 +53,5 @@ RUN mkdir $HOME && \
     chmod 1777 $HOME
 WORKDIR $HOME
 
-EXPOSE 80
+EXPOSE 80/tcp 9993/tcp
 CMD /usr/local/bin/start-xvfb-nginx.sh
