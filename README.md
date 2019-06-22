@@ -33,7 +33,7 @@ Image name: `openquake/qgis-server`
 ### QGIS 3.8
 - `stable` | `3.8` | `3.8.0` | `stable-ubuntu` | `3.8-ubuntu` | `3.8.0-ubuntu`
 
-### QGIS 3.6 (unsupported)
+### QGIS 3.6 (EoL reached)
 - `3.6.3` | `3.6.3-ubuntu`
 - `3.6.2` | `3.6.2-ubuntu`
 - `3.6.1` | `3.6.1-ubuntu`
