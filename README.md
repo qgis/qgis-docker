@@ -33,18 +33,18 @@ Image name: `openquake/qgis-server`
 ### QGIS 3.8
 - `stable` | `3.8` | `3.8.0` | `stable-ubuntu` | `3.8-ubuntu` | `3.8.0-ubuntu`
 
-### QGIS 3.6 (EoL reached)
-- `3.6.3` | `3.6.3-ubuntu`
-- `3.6.2` | `3.6.2-ubuntu`
-- `3.6.1` | `3.6.1-ubuntu`
-- `3.6.0` | `3.6.0-ubuntu`
-
 ### QGIS 3.4 LTR
 - `ltr` | `3.4` | `3.4.9` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.9-ubuntu`
 - `3.4.8` | `3.4.8-ubuntu`
 - `3.4.7` | `3.4.7-ubuntu`
 - `3.4.6` | `3.4.6-ubuntu`
 - `3.4.5` | `3.4.5-ubuntu`
+
+### Archived releases
+- `3.6.3` | `3.6.3-ubuntu`
+- `3.6.2` | `3.6.2-ubuntu`
+- `3.6.1` | `3.6.1-ubuntu`
+- `3.6.0` | `3.6.0-ubuntu`
 
 Example:
 
