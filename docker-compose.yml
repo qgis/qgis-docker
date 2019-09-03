@@ -22,7 +22,7 @@ services:
   nginx:
     image: "nginx"
     volumes:
-     - ./conf/qgis-server-nginx.conf:/etc/nginx/nginx.conf
+     - ./conf/nginx-fcgi-sample.conf:/etc/nginx/nginx.conf
     ports:
      - "127.0.0.1:8010:80"
     networks:
@@ -46,7 +46,7 @@ services:
     volumes:
      # Data should be mount RO when working
      # with GeoPackages and more than one QGIS container
-     - ./data:/io/data:ro
+     - ./test/data:/io/data:ro
      - ./plugins:/io/plugins
      - ./fonts:/usr/share/fonts
      - ./svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg
