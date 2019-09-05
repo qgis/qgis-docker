@@ -58,13 +58,13 @@ $ docker pull openquake/qgis-server:ltr
 
 ### Build the container
 
-#### QGIS 3.6
+#### QGIS 3.8
 
 ```bash
 # Fedora based container
-$ docker build -t openquake/qgis-server:3.6 -f Dockerfile.fedora .
+$ docker build -t openquake/qgis-server:3.8 -f Dockerfile.fedora .
 # Ubuntu based container
-$ docker build -t openquake/qgis-server:3.6 -f Dockerfile.ubuntu .
+$ docker build -t openquake/qgis-server:3.8 -f Dockerfile.ubuntu .
 ```
 
 #### QGIS 3.4 LTR
