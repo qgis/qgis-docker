@@ -4,7 +4,7 @@
 
 ### General information
 
-The Docker image is built using *Fedora 30* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.6) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.4 LTR).
+The Docker image is built using *Fedora 30* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.10) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.4 LTR).
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 A fallback image running *Ubuntu 18.04* is also provided as fallback for systems lacking support for `statx` syscall. See the [Requisites](#Requisites) section.
