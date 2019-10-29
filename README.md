@@ -30,14 +30,12 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 Image name: `openquake/qgis-server`
 
-### QGIS 3.8
-- `stable` | `3.8` | `3.8.3` | `stable-ubuntu` | `3.8-ubuntu` | `3.8.3-ubuntu`
-- `3.8.2` | `3.8.2-ubuntu`
-- `3.8.1` | `3.8.1-ubuntu`
-- `3.8.0` | `3.8.0-ubuntu`
+### QGIS 3.10
+- `stable` | `3.10` | `3.10.0` | `stable-ubuntu` | `3.10.0-ubuntu` | `3.10.0-ubuntu`
 
 ### QGIS 3.4 LTR
-- `ltr` | `3.4` | `3.4.12` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.12-ubuntu`
+- `ltr` | `3.4` | `3.4.13` | `ltr-ubuntu` | `3.4-ubuntu` | `3.4.13-ubuntu`
+- `3.4.12` | `3.4.12-ubuntu`
 - `3.4.11` | `3.4.11-ubuntu`
 - `3.4.10` | `3.4.10-ubuntu`
 - `3.4.9` | `3.4.9-ubuntu`
@@ -47,6 +45,10 @@ Image name: `openquake/qgis-server`
 - `3.4.5` | `3.4.5-ubuntu`
 
 ### Archived releases
+- `3.8.3` | `3.8.3-ubuntu`
+- `3.8.2` | `3.8.2-ubuntu`
+- `3.8.1` | `3.8.1-ubuntu`
+- `3.8.0` | `3.8.0-ubuntu`
 - `3.6.3` | `3.6.3-ubuntu`
 - `3.6.2` | `3.6.2-ubuntu`
 - `3.6.1` | `3.6.1-ubuntu`
@@ -60,13 +62,13 @@ $ docker pull openquake/qgis-server:ltr
 
 ### Build the container
 
-#### QGIS 3.8
+#### QGIS 3.10
 
 ```bash
 # Fedora based container
-$ docker build -t openquake/qgis-server:3.8 -f Dockerfile.fedora .
+$ docker build -t openquake/qgis-server:3.10 -f Dockerfile.fedora .
 # Ubuntu based container
-$ docker build -t openquake/qgis-server:3.8 -f Dockerfile.ubuntu .
+$ docker build -t openquake/qgis-server:3.10 -f Dockerfile.ubuntu .
 ```
 
 #### QGIS 3.4 LTR
