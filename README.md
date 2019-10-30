@@ -20,7 +20,7 @@ Known good configurations are:
 - CentOS 8
 - Fedora 29+
 
-As a fallback for systems lacking `statx` support containers built on top of *Ubuntu 18.04 LTS (Bionic)* are also provided for newer releases.
+As a fallback for systems lacking `statx` support, containers built on top of *Ubuntu 18.04 LTS (Bionic)* are also provided.
 
 See https://github.com/gem/oq-qgis-server/issues/1 for further details.
 
