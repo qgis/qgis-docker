@@ -54,10 +54,6 @@ Image name: `openquake/qgis-server`
 - `3.8.2` | `3.8.2-ubuntu`
 - `3.8.1` | `3.8.1-ubuntu`
 - `3.8.0` | `3.8.0-ubuntu`
-- `3.6.3` | `3.6.3-ubuntu`
-- `3.6.2` | `3.6.2-ubuntu`
-- `3.6.1` | `3.6.1-ubuntu`
-- `3.6.0` | `3.6.0-ubuntu`
 
 Example:
 
