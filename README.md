@@ -213,5 +213,5 @@ Example: `docker run -e QGIS_USER=1000` or `docker run -e QGIS_USER=$(id -u qgis
 ## Notes
 
 GeoPackages do not play well with multiple processes having gpkg files opened in `rw` mode. By default QGIS server processes lack write permission on `/io/data`.
-If you it required to let QGIS server write data to `/io/data` make sure that either you are using a process-safe datastore (i.e. a Postgres backend) or you are
-limiting horizontal one container only at the time. QGIS server user can be customized via the `QGIS_USER` environment variable.
+If it is required to let QGIS server write data to `/io/data` make sure that either you are using a process-safe datastore (i.e. a Postgres backend) or you are
+limiting horizontal scaling to one container only. QGIS server user can be customized via the `QGIS_USER` environment variable.
