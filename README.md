@@ -191,9 +191,9 @@ The following variables can be customized during container deployment:
 
 #### Nginx
 
-- `SKIP_NGINX`: deault is `false`
+When `SKIP_NGINX` is set to a different value than `0` or `false` the embedded copy of Nginx will not be started and an external reverse proxy is then required to access the FastCGI QGIS backend.
 
-When `SKIP_NGINX` is set the embedded copy of Nginx will not be started and an external reverse proxy is then required to access the FastCGI QGIS backend.
+- `SKIP_NGINX`: default is _unset_ (do not skip Nginx startup)
 
 #### QGIS
 
