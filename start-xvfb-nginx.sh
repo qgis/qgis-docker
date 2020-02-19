@@ -37,14 +37,17 @@ waitfor() {
 
 trap cleanup SIGINT SIGTERM
 
+# always convert $SKIP_NGINX to lowercase
+typeset -l SKIP_NGINX
+
 rm -f /tmp/.X99-lock
 # Update font cache
 fc-cache
 /usr/bin/Xvfb :99 -ac -screen 0 1280x1024x16 +extension GLX +render -noreset >/dev/null &
 XVFB_PID=$(waitfor /usr/bin/Xvfb)
-# Do not start NGINX if environment variable '$SKIP_NGINX' is set
+# Do not start NGINX if environment variable '$SKIP_NGINX' is set but not '0' or 'false'
 # this may be useful in production where an external reverse proxy is used
-if [ -z $SKIP_NGINX ]; then
+if [ -z "$SKIP_NGINX" ] || [ "$SKIP_NGINX" == "false" ] || [ "$SKIP_NGINX" == "0" ]; then
     nginx
     NGINX_PID=$(waitfor /usr/sbin/nginx)
 fi
