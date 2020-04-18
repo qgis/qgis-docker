@@ -3,7 +3,7 @@
 # vim: syntax=dockerfile
 #
 # oq-qgis-server
-# Copyright (C) 2018-2019 GEM Foundation
+# Copyright (C) 2018-2020 GEM Foundation
 #
 # oq-qgis-server is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 FROM ubuntu:bionic
-LABEL maintainer="Daniele Viganò <daniele@openquake.org>"
+LABEL maintainer="GEM Foundation <devops@openquake.org>"
 
 ARG repo=ubuntu
 
