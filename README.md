@@ -36,7 +36,7 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 Image name: `openquake/qgis-server`
 
 ### QGIS 3.14
-- `stable` | `3.14` | `3.14.0` | `stable-ubuntu` | `3.14.0-ubuntu`
+- `stable` | `3.14` | `3.14.0` | `stable-ubuntu` | `3.14-ubuntu` | `3.14.0-ubuntu`
 
 ### QGIS 3.10 LTR
 - `ltr` | `3.10` | `3.10.7` | `ltr-ubuntu` | `3.10-ubuntu` | `3.10.7-ubuntu`
