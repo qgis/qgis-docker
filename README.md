@@ -4,7 +4,7 @@
 
 ### General information
 
-The Docker image is built using *Fedora 31* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.12) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.10 LTR).
+The Docker image is built using *Fedora 31* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.14) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.10 LTR).
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 A fallback image running *Ubuntu 18.04* is also provided as fallback for systems lacking support for `statx` syscall. See the [Requisites](#Requisites) section.
@@ -35,13 +35,15 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 Image name: `openquake/qgis-server`
 
-### QGIS 3.12
-- `stable` | `3.12` | `3.12.1` | `stable-ubuntu` | `3.12.1-ubuntu`
+### QGIS 3.14
+- `stable` | `3.14` | `3.14.0` | `stable-ubuntu` | `3.14.0-ubuntu`
 
 ### QGIS 3.10 LTR
-- `ltr` | `3.10` | `3.10.4` | `ltr-ubuntu` | `3.10-ubuntu` | `3.10.4-ubuntu`
+- `ltr` | `3.10` | `3.10.7` | `ltr-ubuntu` | `3.10-ubuntu` | `3.10.7-ubuntu`
 
 ### Archived releases
+- `3.12.1` | `3.12.1-ubuntu`
+- `3.10.4` | `3.10.4-ubuntu`
 - `3.10.1` | `3.10.1-ubuntu`
 - `3.10.0` | `3.10.0-ubuntu`
 - `3.4.14` | `3.4.14-ubuntu`
@@ -67,13 +69,13 @@ $ docker pull openquake/qgis-server:ltr
 
 ### Build the container
 
-#### QGIS 3.12
+#### QGIS 3.14
 
 ```bash
 # Fedora based container
-$ docker build -t openquake/qgis-server:3.12 -f Dockerfile.fedora .
+$ docker build -t openquake/qgis-server:3.14 -f Dockerfile.fedora .
 # Ubuntu based container
-$ docker build -t openquake/qgis-server:3.12-ubuntu -f Dockerfile.ubuntu .
+$ docker build -t openquake/qgis-server:3.14-ubuntu -f Dockerfile.ubuntu .
 ```
 
 #### QGIS 3.10 LTR

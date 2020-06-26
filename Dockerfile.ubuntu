@@ -27,7 +27,7 @@ RUN apt update && apt install -y gnupg && \
     echo "deb     http://qgis.org/$repo bionic main" >> /etc/apt/sources.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-key 51F523511C7028C3 && \
     apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx spawn-fcgi qgis-server python3-qgis && \
+    DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all
 
 # This part is kept to allow the container to be used in
