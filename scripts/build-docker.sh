@@ -24,8 +24,10 @@ echo "QGIS_UBUNTU_PPA: ${QGIS_UBUNTU_PPA}"
 docker build --build-arg repo=${QGIS_UBUNTU_PPA} -t openquake/qgis-server:${RELEASE_TYPE}-ubuntu -f Dockerfile.ubuntu .
 
 docker tag openquake/qgis-server:${RELEASE_TYPE}-ubuntu openquake/qgis-server:${MAJOR_QGIS_VERSION}-ubuntu
-docker tag openquake/qgis-server:${RELEASE_TYPE}-ubuntu openquake/qgis-server:${QGIS_VERSION-ubuntu
+docker tag openquake/qgis-server:${RELEASE_TYPE}-ubuntu openquake/qgis-server:${QGIS_VERSION}-ubuntu
+
+docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
 docker push openquake/qgis-server:${RELEASE_TYPE}-ubuntu
 docker push openquake/qgis-server:${MAJOR_QGIS_VERSION}-ubuntu
-docker push openquake/qgis-server:${QGIS_VERSION-ubuntu
+docker push openquake/qgis-server:${QGIS_VERSION}-ubuntu
