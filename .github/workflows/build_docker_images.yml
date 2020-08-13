@@ -56,18 +56,18 @@ jobs:
           echo "::set-output name=qgis_ltr::${QGIS_LTR//\"/}"
 
 
-  - build-stable:
-      runs-on: ubuntu-latest
-      needs: determinejob
-      if: needs.determinejob.outputs.update_stable == 1
-      steps:
-        - id: build
-          run: ./scripts/build-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
+  build-stable:
+    runs-on: ubuntu-latest
+    needs: determinejob
+    if: needs.determinejob.outputs.update_stable == 1
+    steps:
+      - id: build
+        run: ./scripts/build-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
 
-  - build-ltr:
-      runs-on: ubuntu-latest
-      needs: determinejob
-      if: needs.determinejob.outputs.update_ltr == 1
-      steps:
-        - id: build
-          run: ./scripts/build-docker.sh ltr ${{needs.determinejob.outputs.qgis_ltr}} ${UBUNTU_DIST}
+  build-ltr:
+    runs-on: ubuntu-latest
+    needs: determinejob
+    if: needs.determinejob.outputs.update_ltr == 1
+    steps:
+      - id: build
+        run: ./scripts/build-docker.sh ltr ${{needs.determinejob.outputs.qgis_ltr}} ${UBUNTU_DIST}
