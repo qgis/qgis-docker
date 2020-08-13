@@ -6,7 +6,7 @@ RELEASE_TYPE=$1
 QGIS_VERSION=$2
 UBUNTU_DIST=$3
 
-MAJOR_QGIS_VERSION=$(echo "${QGIS_VERSION}" | cut -d. -f1 -f2)
+MAJOR_QGIS_VERSION=$(echo "${QGIS_VERSION}" | cut -d. -f1,2)
 
 if [[ ${RELEASE_TYPE} =~ ^ltr$ ]]; then
   QGIS_UBUNTU_PPA='ubuntu-ltr'

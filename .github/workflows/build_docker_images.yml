@@ -66,6 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: build
+        name: build stable image
         run: ./scripts/build-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
 
   build-ltr:
@@ -75,4 +76,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: build
+        name: build LTR image
         run: ./scripts/build-docker.sh ltr ${{needs.determinejob.outputs.qgis_ltr}} ${UBUNTU_DIST}
