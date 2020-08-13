@@ -27,7 +27,7 @@ ARG ubuntu_dist
 ARG repo=ubuntu
 
 RUN apt update && apt install -y gnupg && \
-    echo "deb     http://qgis.org/${repo} ${ubuntu_dist} main" >> /etc/apt/sources.list && cat /etc/apt/sources.list && \
+    echo "deb     http://qgis.org/${repo} ${ubuntu_dist} main" >> /etc/apt/sources.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-key F7E06F06199EF2F2 && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
