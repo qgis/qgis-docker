@@ -12,9 +12,24 @@ env:
   UBUNTU_DIST: 'bionic'
 
 jobs:
+  testing-ubuntu:
+    runs-on: ubuntu-latest
+    name: testing ubuntu
+    steps:
+      - uses: actions/checkout@v2
+      - id: testing
+        name: testing
+        run: |
+          docker build -t openquake/qgis-server -f Dockerfile.ubuntu .
+          docker exec -ti qgis-server dpkg -l qgis-server
+          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
+          sleep 5
+          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+
   determinejob:
     runs-on: ubuntu-latest
     name: Determine what needs to be updated
+    needs: testing-ubuntu
     outputs:
       update_stable: ${{ steps.determine.outputs.update_stable }}
       qgis_stable: ${{ steps.determine.outputs.qgis_stable }}
@@ -64,7 +79,7 @@ jobs:
   build-stable:
     runs-on: ubuntu-latest
     needs: determinejob
-    if: needs.determinejob.outputs.update_stable == 1
+    if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - id: build
@@ -77,7 +92,7 @@ jobs:
   build-ltr:
     runs-on: ubuntu-latest
     needs: determinejob
-    if: needs.determinejob.outputs.update_ltr == 1
+    if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - id: build
