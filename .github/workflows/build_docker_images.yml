@@ -25,6 +25,7 @@ jobs:
         run: pip3 install packaging
 
       - id: determine
+        name: determine QGIS and Docker versions
         run : |
           DOCKER=$(./scripts/get_docker_image_version.py)
           QGIS=$(./scripts/get_qgis_package_version.py)
@@ -63,6 +64,7 @@ jobs:
     needs: determinejob
     if: needs.determinejob.outputs.update_stable == 1
     steps:
+      - uses: actions/checkout@v2
       - id: build
         run: ./scripts/build-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
 
@@ -71,5 +73,6 @@ jobs:
     needs: determinejob
     if: needs.determinejob.outputs.update_ltr == 1
     steps:
+      - uses: actions/checkout@v2
       - id: build
         run: ./scripts/build-docker.sh ltr ${{needs.determinejob.outputs.qgis_ltr}} ${UBUNTU_DIST}
