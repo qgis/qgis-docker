@@ -19,6 +19,7 @@ jobs:
       update_ltr: ${{ steps.determine.outputs.update_ltr }}
       qgis_ltr: ${{ steps.determine.outputs.qgis_ltr }}
     steps:
+      - uses: actions/checkout@v2
       - id: determine
         run : |
           DOCKER=$(./scripts/get_docker_image_version.py)
