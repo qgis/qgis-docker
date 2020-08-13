@@ -30,7 +30,7 @@ jobs:
         name: determine QGIS and Docker versions
         run : |
           DOCKER=$(./scripts/get_docker_image_version.py)
-          QGIS=$(./scripts/get_qgis_package_version.py)
+          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${UBUNTU_DIST})
 
           DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable")
           DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr")
