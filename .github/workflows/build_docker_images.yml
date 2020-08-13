@@ -20,6 +20,10 @@ jobs:
       qgis_ltr: ${{ steps.determine.outputs.qgis_ltr }}
     steps:
       - uses: actions/checkout@v2
+
+      - id: python_deps
+        run: pip3 install packaging
+
       - id: determine
         run : |
           DOCKER=$(./scripts/get_docker_image_version.py)
