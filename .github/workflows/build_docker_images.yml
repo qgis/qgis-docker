@@ -3,7 +3,8 @@ name: Auto build QGIS server Docker images
 on:
   schedule:
     # runs every day
-    - cron: '0 0 * * *'
+    #- cron: '0 0 * * *'
+    - cron: '* */1 * * *'
   push:
     branches:
       - master
@@ -15,21 +16,22 @@ jobs:
   testing-ubuntu:
     runs-on: ubuntu-latest
     name: testing ubuntu
+    # no need to test on scheduled jobs
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - id: testing
-        name: testing
+        name: testing ubuntu
         run: |
           docker build -t openquake/qgis-server -f Dockerfile.ubuntu .
-          docker exec -ti qgis-server dpkg -l qgis-server
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
+          docker exec -ti qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
 
   determinejob:
     runs-on: ubuntu-latest
     name: Determine what needs to be updated
-    needs: testing-ubuntu
     outputs:
       update_stable: ${{ steps.determine.outputs.update_stable }}
       qgis_stable: ${{ steps.determine.outputs.qgis_stable }}
@@ -76,27 +78,27 @@ jobs:
           echo "::set-output name=qgis_ltr::${QGIS_LTR//\"/}"
 
 
-  build-stable:
+  build-ubuntu-stable:
     runs-on: ubuntu-latest
-    needs: determinejob
+    needs: determinejob, testing-ubuntu
     if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - id: build
-        name: build stable image
+        name: build ubuntu stable image
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
         run: ./scripts/build-push-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
 
-  build-ltr:
+  build-ubuntu-ltr:
     runs-on: ubuntu-latest
-    needs: determinejob
+    needs: determinejob, testing-ubuntu
     if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - id: build
-        name: build LTR image
+        name: build ubuntu LTR image
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
