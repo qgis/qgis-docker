@@ -5,9 +5,6 @@ on:
     # runs every day
     - cron: '0 0 * * *'
   push:
-    - branches:
-        - master
-        - build-workflow
 
 env:
   UBUNTU_DIST: 'bionic'
