@@ -80,7 +80,7 @@ jobs:
 
   build-ubuntu-stable:
     runs-on: ubuntu-latest
-    needs: determinejob, testing-ubuntu
+    needs: [determinejob, testing-ubuntu]
     if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
@@ -93,7 +93,7 @@ jobs:
 
   build-ubuntu-ltr:
     runs-on: ubuntu-latest
-    needs: determinejob, testing-ubuntu
+    needs: [determinejob, testing-ubuntu]
     if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
