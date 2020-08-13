@@ -3,8 +3,7 @@ name: Auto build QGIS server Docker images
 on:
   schedule:
     # runs every day
-    #- cron: '0 0 * * *'
-    - cron: '* */1 * * *'
+    - cron: '0 0 * * *'
   push:
     branches:
       - master
@@ -31,7 +30,7 @@ jobs:
 
   determinejob:
     runs-on: ubuntu-latest
-    name: Determine what needs to be updated
+    name: determine versions to update
     outputs:
       update_stable: ${{ steps.determine.outputs.update_stable }}
       qgis_stable: ${{ steps.determine.outputs.qgis_stable }}
