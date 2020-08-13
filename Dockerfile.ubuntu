@@ -18,14 +18,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:bionic
+ARG ubuntu_dist=bionic
+
+FROM ubuntu:${ubuntu_dist}
 LABEL maintainer="GEM Foundation <devops@openquake.org>"
 
+ARG ubuntu_dist
 ARG repo=ubuntu
 
 RUN apt update && apt install -y gnupg && \
-    echo "deb     http://qgis.org/$repo bionic main" >> /etc/apt/sources.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-key 51F523511C7028C3 && \
+    echo "deb     http://qgis.org/${repo} ${ubuntu_dist} main" >> /etc/apt/sources.list && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-key F7E06F06199EF2F2 && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all

@@ -1,0 +1,85 @@
+name: Auto build QGIS server Docker images
+
+on:
+  schedule:
+    # runs every day
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - master
+
+env:
+  UBUNTU_DIST: 'bionic'
+
+jobs:
+  determinejob:
+    runs-on: ubuntu-latest
+    name: Determine what needs to be updated
+    outputs:
+      update_stable: ${{ steps.determine.outputs.update_stable }}
+      qgis_stable: ${{ steps.determine.outputs.qgis_stable }}
+      update_ltr: ${{ steps.determine.outputs.update_ltr }}
+      qgis_ltr: ${{ steps.determine.outputs.qgis_ltr }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: python_deps
+        run: pip3 install packaging
+
+      - id: determine
+        name: determine QGIS and Docker versions
+        run : |
+          DOCKER=$(./scripts/get_docker_image_version.py)
+          QGIS=$(./scripts/get_qgis_package_version.py)
+
+          DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable")
+          DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr")
+          QGIS_STABLE=$(echo "${QGIS}" | jq ".stable")
+          QGIS_LTR=$(echo "${QGIS}" | jq ".ltr")
+
+          echo "Existing stable docker: ${DOCKER_STABLE}"
+          echo "Available stable QGIS: ${QGIS_STABLE}"
+          UPDATE_STABLE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_STABLE}) < version.parse(${QGIS_STABLE}) else 0)")
+          if [[ ${UPDATE_STABLE} == 1 ]]; then
+            echo "--> stable will be updated"
+          else
+            echo "--> stable is up to date"
+          fi
+          echo "Existing LTR docker: ${DOCKER_LTR}"
+          echo "Available LTR QGIS: ${QGIS_LTR}"
+          UPDATE_LTR=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_LTR}) < version.parse(${QGIS_LTR}) else 0)")
+          if [[ ${UPDATE_LTR} == 1 ]]; then
+            echo "--> LTR will be updated"
+          else
+            echo "--> LTR is up to date"
+          fi
+
+          # echo output for github worflows
+          echo "::set-output name=update_stable::${UPDATE_STABLE}"
+          echo "::set-output name=update_ltr::${UPDATE_LTR}"
+          echo "::set-output name=qgis_stable::${QGIS_STABLE//\"/}"
+          echo "::set-output name=qgis_ltr::${QGIS_LTR//\"/}"
+
+
+  build-stable:
+    runs-on: ubuntu-latest
+    needs: determinejob
+    if: needs.determinejob.outputs.update_stable == 1
+    with:
+      DOCKER_USERNAME: ${{ secrets.docker_username }}
+      DOCKER_PASSWORD: ${{ secrets.docker_password }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: build
+        name: build stable image
+        run: ./scripts/build-push-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
+
+  build-ltr:
+    runs-on: ubuntu-latest
+    needs: determinejob
+    if: needs.determinejob.outputs.update_ltr == 1
+    steps:
+      - uses: actions/checkout@v2
+      - id: build
+        name: build LTR image
+        run: ./scripts/build-push-docker.sh ltr ${{needs.determinejob.outputs.qgis_ltr}} ${UBUNTU_DIST}
