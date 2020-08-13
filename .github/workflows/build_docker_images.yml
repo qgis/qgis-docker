@@ -25,7 +25,7 @@ jobs:
         run: |
           docker build -t openquake/qgis-server -f Dockerfile.ubuntu .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
-          docker exec -ti qgis-server dpkg -l qgis-server
+          docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
 
