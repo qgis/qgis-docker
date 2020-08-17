@@ -100,7 +100,7 @@ An `/ows/` endpoint is also available for direct access to the `fcgi` (bypassing
 
 #### Plugins, fonts and SVG symbols (optional)
 
-Plugins custom fonts and SVG can be optionally exposed from host to the containers:
+Plugins, custom fonts and SVG can be optionally exposed from host to the containers:
 
 ##### Plugins
 
