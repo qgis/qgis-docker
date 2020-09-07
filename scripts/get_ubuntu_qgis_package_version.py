@@ -21,8 +21,8 @@ if __name__ == "__main__":
         repo = APTRepository(url, dist, components)
         package = repo.get_packages_by_name('qgis-server')[0]
         assert package.package == 'qgis-server'
-        # https://regex101.com/r/lkuibv/1
-        p = re.compile('^1:(\d(?:\.\d+)+)(?:\+\d+{})$'.format(dist))
+        # https://regex101.com/r/lkuibv/2
+        p = re.compile('^1:(\d(?:\.\d+)+)(?:\+\d+{})(?:\-\d+)?$'.format(dist))
         m = p.match(package.version)
         data['ltr' if ltr else 'stable'] = m.group(1)
 
