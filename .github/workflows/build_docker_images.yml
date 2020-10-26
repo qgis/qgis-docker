@@ -15,8 +15,6 @@ jobs:
   testing-ubuntu:
     runs-on: ubuntu-latest
     name: testing ubuntu
-    # no need to test on scheduled jobs
-    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - id: testing
