@@ -4,16 +4,9 @@ language: python
 jobs:
   include:
   - stage: build
-    env: FEDORA
-    before_install:
-      - docker build -t openquake/qgis-server -f Dockerfile.fedora .
-    before_script:
-      # Get the installed package for qgis-server
-      - docker exec -ti qgis-server rpm -q qgis-server
-  - stage: build
     env: UBUNTU
     before_install:
-      - docker build -t openquake/qgis-server -f Dockerfile.ubuntu .
+      - docker build -t openquake/qgis-server .
     before_script:
       # Get the installed package for qgis-server
       - docker exec -ti qgis-server dpkg -l qgis-server

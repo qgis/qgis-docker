@@ -4,23 +4,18 @@
 
 ### General information
 
-The Docker image is built using *Fedora 31* and QGIS RPMs from https://copr.fedorainfracloud.org/coprs/dani/qgis/ (QGIS 3.14) and https://copr.fedorainfracloud.org/coprs/dani/qgis-ltr/ (QGIS 3.10 LTR).
+The Docker image is built using *Ubuntu 18.04 (Bionic)* and official QGIS DEBs from https://qgis.org/.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
-
-A fallback image running *Ubuntu 18.04* is also provided as fallback for systems lacking support for `statx` syscall. See the [Requisites](#Requisites) section.
-The *Fedora* container is generally more tested.
 
 ### Requisites
 
-To be able to run *Fedora* containers you need **Docker >= 18.04** with `seccomp` support for the `statx` syscall required by Qt 5.10+. This is generally included in **libseccomp >= 2.3.3**;
+You need **Docker >= 18.04** with `seccomp`. Support for the `statx` syscall, required by Qt 5.10+, may be made necessary in the future. This is generally included in **libseccomp >= 2.3.3**;
 a kernel with `statx` support is also required; any kernel newer than 4.11 should be ok. Please check with your vendor.
 
 Known good configurations are:
 - Ubuntu 18.04.2+
 - CentOS 8
 - Fedora 29+
-
-As a fallback for systems lacking `statx` support, containers built on top of *Ubuntu 18.04 LTS (Bionic)* are also provided.
 
 See https://github.com/gem/oq-qgis-server/issues/1 for further details.
 
@@ -35,31 +30,11 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 Image name: `openquake/qgis-server`
 
-### QGIS 3.14
-- `stable` | `3.14` | `3.14.0` | `stable-ubuntu` | `3.14-ubuntu` | `3.14.0-ubuntu`
+### QGIS 3.16
+- `stable` | `3.16` | `stable-ubuntu` | `3.14-ubuntu`
 
 ### QGIS 3.10 LTR
-- `ltr` | `3.10` | `3.10.7` | `ltr-ubuntu` | `3.10-ubuntu` | `3.10.7-ubuntu`
-
-### Archived releases
-- `3.12.1` | `3.12.1-ubuntu`
-- `3.10.4` | `3.10.4-ubuntu`
-- `3.10.1` | `3.10.1-ubuntu`
-- `3.10.0` | `3.10.0-ubuntu`
-- `3.4.14` | `3.4.14-ubuntu`
-- `3.4.13` | `3.4.13-ubuntu`
-- `3.4.12` | `3.4.12-ubuntu`
-- `3.4.11` | `3.4.11-ubuntu`
-- `3.4.10` | `3.4.10-ubuntu`
-- `3.4.9` | `3.4.9-ubuntu`
-- `3.4.8` | `3.4.8-ubuntu`
-- `3.4.7` | `3.4.7-ubuntu`
-- `3.4.6` | `3.4.6-ubuntu`
-- `3.4.5` | `3.4.5-ubuntu`
-- `3.8.3` | `3.8.3-ubuntu`
-- `3.8.2` | `3.8.2-ubuntu`
-- `3.8.1` | `3.8.1-ubuntu`
-- `3.8.0` | `3.8.0-ubuntu`
+- `ltr` | `3.10` | `ltr-ubuntu` | `3.10-ubuntu`
 
 Example:
 
@@ -72,19 +47,13 @@ $ docker pull openquake/qgis-server:ltr
 #### QGIS 3.14
 
 ```bash
-# Fedora based container
-$ docker build -t openquake/qgis-server:3.14 -f Dockerfile.fedora .
-# Ubuntu based container
-$ docker build -t openquake/qgis-server:3.14-ubuntu -f Dockerfile.ubuntu .
+$ docker build -t openquake/qgis-server:stable .
 ```
 
 #### QGIS 3.10 LTR
 
 ```bash
-# Fedora based container
-$ docker build --build-arg repo=qgis-ltr -t openquake/qgis-server:3.10 -f Dockerfile.fedora .
-# Ubuntu based container
-$ docker build --build-arg repo=ubuntu-ltr -t openquake/qgis-server:3.10-ubuntu -f Dockerfile.ubuntu .
+$ docker build --build-arg repo=ubuntu-ltr -t openquake/qgis-server:ltr .
 ```
 
 You may skip this step. The container will be downloaded from the Docker Hub.
@@ -92,7 +61,7 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 ### Run the docker and map host data
 
 ```
-$ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 openquake/qgis-server:3.10
+$ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 openquake/qgis-server:ltr
 ```
 
 `WMS` and `WFS` for a specific project will be published at `http://localhost:8010/ogc/<project_name>`.
@@ -122,7 +91,7 @@ Plugins, custom fonts and SVG can be optionally exposed from host to the contain
 
 Example:
 ```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -v $(pwd)/fonts:/usr/share/fonts --name qgis-server -d -p 8010:80 openquake/qgis-server:3.10
+$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -v $(pwd)/fonts:/usr/share/fonts --name qgis-server -d -p 8010:80 openquake/qgis-server:ltr
 ```
 
 #### Access the container via bash
@@ -146,7 +115,7 @@ where `qgis-server` is the name of the container.
 Default log level is set to `warning`. Log level can be increased during container deployment passing the `-e QGIS_SERVER_LOG_LEVEL=0` option:
 
 ```
-$ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:3.10
+$ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:ltr
 ```
 
 ### Run the docker and map host data (via docker-compose)

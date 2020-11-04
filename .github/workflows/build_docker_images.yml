@@ -35,7 +35,7 @@ jobs:
       - id: testing
         name: testing ubuntu
         run: |
-          docker build -t openquake/qgis-server -f Dockerfile.ubuntu .
+          docker build -t openquake/qgis-server .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
