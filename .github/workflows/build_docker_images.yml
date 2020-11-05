@@ -12,6 +12,21 @@ env:
   UBUNTU_DIST: 'bionic'
 
 jobs:
+  build-nightly:
+    runs-on: ubuntu-latest
+    name: build nightly
+    steps:
+      - uses: actions/checkout@v2
+      - id: building ubuntu
+        run: |
+          docker build -t openquake/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
+          docker exec -i qgis-server dpkg -l qgis-server
+          sleep 5
+          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+          docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+          docker push openquake/qgis-server:nightly
+     
   testing-ubuntu:
     runs-on: ubuntu-latest
     name: testing ubuntu
