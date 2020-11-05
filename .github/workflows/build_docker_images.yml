@@ -17,7 +17,7 @@ jobs:
     name: build nightly
     steps:
       - uses: actions/checkout@v2
-      - id: building ubuntu
+      - name: building ubuntu
         run: |
           docker build -t openquake/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
