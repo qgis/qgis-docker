@@ -67,6 +67,16 @@ $ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 openquake/
 `WMS` and `WFS` for a specific project will be published at `http://localhost:8010/ogc/<project_name>`.
 An `/ows/` endpoint is also available for direct access to the `fcgi` (bypassing the `map=<<project_name>` rewrite).
 
+
+#### PostgreSQL connection service file (optional)
+
+The [connection service file](https://www.postgresql.org/docs/12/libpq-pgservice.html) allows connection parameters to be associated with a single service name and thus to be able to use the same QGIS projects in different environments. This could also be achieved with [QGIS authentications](https://docs.qgis.org/3.10/en/docs/user_manual/auth_system/auth_workflows.html#database-authentication).
+To use a pg_service file you need to bind mount it as shown in the [docker-compose](docker-compose.yml) or on run:
+```
+-v $(pwd)/conf/pg_service.conf:/etc/postgresql-common/pg_service.conf:ro
+```
+
+
 #### Plugins, fonts and SVG symbols (optional)
 
 Plugins, custom fonts and SVG can be optionally exposed from host to the containers:
