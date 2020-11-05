@@ -1,0 +1,22 @@
+name: Push description (README.md) to Docker Hub
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - README.md
+
+jobs:
+  build-nightly:
+    runs-on: ubuntu-latest
+    name: push description to Docker Hub
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.docker_username }}
+          password: ${{ secrets.docker_password }}
+          repository: peterevans/dockerhub-description
