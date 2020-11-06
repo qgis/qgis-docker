@@ -24,6 +24,7 @@ echo "QGIS_UBUNTU_PPA: ${QGIS_UBUNTU_PPA}"
 docker build --build-arg repo=${QGIS_UBUNTU_PPA} -t openquake/qgis-server:${RELEASE_TYPE} .
 
 for tag in '' '-ubuntu'; do
+    docker tag openquake/qgis-server:${RELEASE_TYPE} openquake/qgis-server:${RELEASE_TYPE}${tag}
     docker tag openquake/qgis-server:${RELEASE_TYPE} openquake/qgis-server:${MAJOR_QGIS_VERSION}${tag}
     docker tag openquake/qgis-server:${RELEASE_TYPE} openquake/qgis-server:${QGIS_VERSION}${tag}
 done
