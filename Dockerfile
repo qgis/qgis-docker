@@ -26,9 +26,10 @@ LABEL maintainer="GEM Foundation <devops@openquake.org>"
 ARG ubuntu_dist
 ARG repo=ubuntu
 
-RUN apt update && apt install -y gnupg && \
-    echo "deb     http://qgis.org/${repo} ${ubuntu_dist} main" >> /etc/apt/sources.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-key F7E06F06199EF2F2 && \
+RUN apt update && apt install -y gnupg wget software-properties-common && \
+    wget -qO - https://qgis.org/downloads/qgis-2020.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
+    chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
+    add-apt-repository "deb https://qgis.org/${repo} ${ubuntu_dist} main" && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all
