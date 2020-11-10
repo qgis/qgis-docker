@@ -3,7 +3,7 @@ name: Auto build QGIS server Docker images
 on:
   schedule:
     # runs every day
-    - cron: '0 0 * * *'
+    - cron: '0 6 * * *'
   push:
     branches:
       - master
