@@ -23,7 +23,6 @@ ARG ubuntu_dist=bionic
 FROM ubuntu:${ubuntu_dist}
 LABEL maintainer="GEM Foundation <devops@openquake.org>"
 
-ARG ubuntu_dist
 ARG repo=ubuntu
 
 RUN apt update && apt install -y gnupg wget software-properties-common && \
