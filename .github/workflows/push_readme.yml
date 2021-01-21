@@ -19,4 +19,4 @@ jobs:
         with:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_password }}
-          repository: peterevans/dockerhub-description
+          repository: openquake/qgis-server
