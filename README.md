@@ -186,7 +186,7 @@ When `SKIP_NGINX` is set to a different value than `0` or `false` the embedded c
 - `QGIS_SERVER_WMS_MAX_WIDTH`: not set by default
 - `QGIS_SERVER_WMS_MAX_WIDTH`: not set by default
 
-See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/user_manual/working_with_ogc/server/config.html) for further details.
+See [QGIS server documentation](https://docs.qgis.org/testing/en/docs/server_manual/config.html#environment-variables) for further details.
 
 It is also possible to customized the ID of the user running QGIS server processes when it is required to write to host volumes (see [notes](#notes)):
 
