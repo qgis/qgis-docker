@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  UBUNTU_DIST: 'bionic'
+  UBUNTU_DIST: 'focal'
 
 jobs:
   build-nightly:
