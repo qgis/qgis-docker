@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ARG ubuntu_dist=bionic
+ARG ubuntu_dist=focal
 
 FROM ubuntu:${ubuntu_dist}
 LABEL maintainer="GEM Foundation <devops@openquake.org>"
