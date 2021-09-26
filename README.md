@@ -65,6 +65,7 @@ $ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 openquake/
 ```
 
 `WMS` and `WFS` for a specific project will be published at `http://localhost:8010/ogc/<project_name>`.
+`WFS3` is accessible via `http://localhost:8010/wfs3/<project_name>`.
 An `/ows/` endpoint is also available for direct access to the `fcgi` (bypassing the `map=<<project_name>` rewrite).
 
 
