@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - README_dockerhub.md
+      - README.md
 
 jobs:
   build-nightly:
