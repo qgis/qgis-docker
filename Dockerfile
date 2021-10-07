@@ -27,7 +27,7 @@ ARG ubuntu_dist
 ARG repo=ubuntu
 
 RUN apt update && apt install -y gnupg wget software-properties-common && \
-    wget -qO - https://qgis.org/downloads/qgis-2021.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
+    wget -qO - https://qgis.org/downloads/qgis-$(date +%Y).gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
     chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
     add-apt-repository "deb https://qgis.org/${repo} ${ubuntu_dist} main" && \
     apt update && \
