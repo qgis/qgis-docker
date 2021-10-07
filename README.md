@@ -4,7 +4,7 @@
 
 ### General information
 
-The Docker image is built using *Ubuntu 18.04 (Bionic)* and official QGIS DEBs from https://qgis.org/.
+The Docker image is built using *Ubuntu 20.04 (Focal)* and official QGIS DEBs from https://qgis.org/.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 ### Requisites
@@ -30,11 +30,11 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 Image name: `openquake/qgis-server`
 
-### QGIS 3.16
-- `stable` | `3.16` | `stable-ubuntu` | `3.16-ubuntu`
+### QGIS stable
+- `stable` | `stable-ubuntu`
 
-### QGIS 3.10 LTR
-- `ltr` | `3.10` | `ltr-ubuntu` | `3.10-ubuntu`
+### QGIS LTR
+- `ltr` | `ltr-ubuntu`
 
 Example:
 
@@ -44,13 +44,13 @@ $ docker pull openquake/qgis-server:ltr
 
 ### Build the container
 
-#### QGIS 3.14
+#### QGIS stable 
 
 ```bash
 $ docker build -t openquake/qgis-server:stable .
 ```
 
-#### QGIS 3.10 LTR
+#### QGIS LTR
 
 ```bash
 $ docker build --build-arg repo=ubuntu-ltr -t openquake/qgis-server:ltr .
@@ -65,13 +65,13 @@ $ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 openquake/
 ```
 
 `WMS` and `WFS` for a specific project will be published at `http://localhost:8010/ogc/<project_name>`.
-`WFS3` is accessible via `http://localhost:8010/wfs3/<project_name>`.
-An `/ows/` endpoint is also available for direct access to the `fcgi` (bypassing the `map=<<project_name>` rewrite).
+An `/ows/` endpoint is also available for direct access to the `fcgi` (bypassing the `map=<project_name>` rewrite).
+Direct access to `WFS3` is accessible via `http://localhost:8010/wfs3/`.
 
 
 #### PostgreSQL connection service file (optional)
 
-The [connection service file](https://www.postgresql.org/docs/12/libpq-pgservice.html) allows connection parameters to be associated with a single service name and thus to be able to use the same QGIS projects in different environments. This could also be achieved with [QGIS authentications](https://docs.qgis.org/3.10/en/docs/user_manual/auth_system/auth_workflows.html#database-authentication).
+The [connection service file](https://www.postgresql.org/docs/12/libpq-pgservice.html) allows connection parameters to be associated with a single service name and thus to be able to use the same QGIS projects in different environments. This could also be achieved with [QGIS authentications](https://docs.qgis.org/3.16/en/docs/user_manual/auth_system/auth_workflows.html#database-authentication).
 To use a pg_service file you need to bind mount it as shown in the [docker-compose](docker-compose.yml) or on run:
 ```
 -v $(pwd)/conf/pg_service.conf:/etc/postgresql-common/pg_service.conf:ro
