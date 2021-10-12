@@ -6,9 +6,13 @@ October 2021 Ownership transfer to OPENGIS.ch
 
 ## Contributors
 
-- Marco Bernasocchi <marco@opengis.ch>
-- Denis Rouzaud <denis@opengis.ch>
-- Daniele Viganò <daniele@vigano.me>
+- Marco Bernasocchi [@mbernasocchi](https://github.com/mbernasocchi/)
+- Denis Rouzaud [@3nids](https://github.com/3nids)
+- Matthias Kuhn [@m-kuhn](https://github.com/m-kuhn)
+- Daniele Viganò [@daniviga](https://github.com/daniviga)
+- Matteo Nastasi [@nastasi-oq](https://github.com/nastasi-oq)
+- Antonio Ettorre [@vot4anto](https://github.com/vot4anto)
+- Alessandro Pasotti [@elpaso](https://github.com/elpaso)
 
 ## QGIS upstream project
 
