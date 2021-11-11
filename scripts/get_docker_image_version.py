@@ -13,8 +13,6 @@ tags = json.loads(data)['results']
 # get available tags
 availables_tags = {}
 for tag in tags:
-    if not tag['name'].endswith('-ubuntu'):
-        continue
     if tag['name'].startswith('stable'):
         stable = tag['images'][0]['digest']  # sha
     elif tag['name'].startswith('ltr'):
