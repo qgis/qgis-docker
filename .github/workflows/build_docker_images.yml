@@ -28,12 +28,12 @@ jobs:
       - id: build
         name: building ubuntu
         run: |
-          docker build -t openquake/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
-          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server:nightly
+          docker build -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
-          docker push openquake/qgis-server:nightly
+          docker push opengisch/qgis-server:nightly
 
   testing-ubuntu:
     runs-on: ubuntu-latest
@@ -43,8 +43,8 @@ jobs:
       - id: testing
         name: testing ubuntu
         run: |
-          docker build -t openquake/qgis-server .
-          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server
+          docker build -t opengisch/qgis-server .
+          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
