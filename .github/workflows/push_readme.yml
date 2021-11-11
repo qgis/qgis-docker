@@ -17,6 +17,6 @@ jobs:
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v2
         with:
-          username: ${{ secrets.docker_username }}
-          password: ${{ secrets.docker_password }}
-          repository: openquake/qgis-server
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: opengisch/qgis-server
