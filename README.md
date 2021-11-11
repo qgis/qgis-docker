@@ -28,7 +28,7 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 ### Available tags
 
-Image name: `openquake/qgis-server`
+Image name: `opengisch/qgis-server`
 
 ### QGIS stable
 - `stable` | `stable-ubuntu`
@@ -39,7 +39,7 @@ Image name: `openquake/qgis-server`
 Example:
 
 ```bash
-$ docker pull openquake/qgis-server:ltr
+$ docker pull opengisch/qgis-server:ltr
 ```
 
 ### Build the container
@@ -47,13 +47,13 @@ $ docker pull openquake/qgis-server:ltr
 #### QGIS stable 
 
 ```bash
-$ docker build -t openquake/qgis-server:stable .
+$ docker build -t opengisch/qgis-server:stable .
 ```
 
 #### QGIS LTR
 
 ```bash
-$ docker build --build-arg repo=ubuntu-ltr -t openquake/qgis-server:ltr .
+$ docker build --build-arg repo=ubuntu-ltr -t opengisch/qgis-server:ltr .
 ```
 
 You may skip this step. The container will be downloaded from the Docker Hub.
@@ -61,7 +61,7 @@ You may skip this step. The container will be downloaded from the Docker Hub.
 ### Run the docker and map host data
 
 ```
-$ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 openquake/qgis-server:ltr
+$ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 opengisch/qgis-server:ltr
 ```
 
 `WMS` and `WFS` for a specific project will be published at `http://localhost:8010/ogc/<project_name>`.
