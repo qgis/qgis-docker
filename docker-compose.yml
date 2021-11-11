@@ -31,7 +31,7 @@ services:
     depends_on:
      - qgis-server
   qgis-server:
-    image: "openquake/qgis-server:stable"
+    image: "opengisch/qgis-server:stable"
     environment:
       # Do not run the embedded copy of nginx
       SKIP_NGINX: "true"
