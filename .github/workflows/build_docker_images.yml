@@ -18,18 +18,21 @@ jobs:
     name: build nightly
     steps:
       - uses: actions/checkout@v2
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
       - id: build
         name: building ubuntu
-        env:
-          DOCKER_USERNAME: ${{ secrets.docker_username }}
-          DOCKER_PASSWORD: ${{ secrets.docker_password }}
         run: |
           docker build -t openquake/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server openquake/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
-          docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
           docker push openquake/qgis-server:nightly
 
   testing-ubuntu:
@@ -101,6 +104,11 @@ jobs:
     if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - id: build
         name: build ubuntu stable image
         env:
@@ -114,6 +122,11 @@ jobs:
     if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - id: build
         name: build ubuntu LTR image
         env:
