@@ -29,8 +29,6 @@ for tag in '' '-ubuntu'; do
     docker tag openquake/qgis-server:${RELEASE_TYPE} openquake/qgis-server:${QGIS_VERSION}${tag}
 done
 
-docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-
 for tag in '' '-ubuntu'; do
     docker push openquake/qgis-server:${RELEASE_TYPE}${tag}
     docker push openquake/qgis-server:${MAJOR_QGIS_VERSION}${tag}
