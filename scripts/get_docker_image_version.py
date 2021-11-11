@@ -6,7 +6,7 @@
 import requests
 import json
 
-url = 'https://registry.hub.docker.com/v2/repositories/openquake/qgis-server/tags?page_size=10000'
+url = 'https://registry.hub.docker.com/v2/repositories/opengisch/qgis-server/tags?page_size=10000'
 data = requests.get(url).content.decode('utf-8')
 tags = json.loads(data)['results']
 
