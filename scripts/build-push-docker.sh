@@ -23,14 +23,10 @@ echo "QGIS_UBUNTU_PPA: ${QGIS_UBUNTU_PPA}"
 
 docker build --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA} -t opengisch/qgis-server:${RELEASE_TYPE} .
 
-for tag in '' '-ubuntu'; do
-    docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${RELEASE_TYPE}${tag}
-    docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${MAJOR_QGIS_VERSION}${tag}
-    docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${QGIS_VERSION}${tag}
-done
+docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${RELEASE_TYPE}
+docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${MAJOR_QGIS_VERSION}
+docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${QGIS_VERSION}
 
-for tag in '' '-ubuntu'; do
-    docker push opengisch/qgis-server:${RELEASE_TYPE}${tag}
-    docker push opengisch/qgis-server:${MAJOR_QGIS_VERSION}${tag}
-    docker push opengisch/qgis-server:${QGIS_VERSION}${tag}
-done
+docker push opengisch/qgis-server:${RELEASE_TYPE}
+docker push opengisch/qgis-server:${MAJOR_QGIS_VERSION}
+docker push opengisch/qgis-server:${QGIS_VERSION}
