@@ -6,6 +6,8 @@ on:
       - master
     paths:
       - README.md
+      - .github/workflows/push_readme.yml
+
 
 jobs:
   build-nightly:
