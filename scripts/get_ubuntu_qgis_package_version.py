@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     data = {}
     for ltr in (True, False):
-        url = 'http://qgis.org/ubuntu{}'.format('-ltr' if ltr else '')
+        url = 'https://qgis.org/ubuntu{}'.format('-ltr' if ltr else '')
         components = ['main']
         repo = APTRepository(url, dist, components)
         package = repo.get_packages_by_name('qgis-server')[0]
