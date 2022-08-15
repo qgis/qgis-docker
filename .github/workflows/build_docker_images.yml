@@ -19,7 +19,10 @@ jobs:
     name: build nightly
     steps:
       - uses: actions/checkout@v2
-      
+
+      - name: multi-arch-builder
+        run: docker buildx create --use --name multi-arch-builder
+
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
@@ -29,7 +32,7 @@ jobs:
       - id: build
         name: building ubuntu
         run: |
-          docker build -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker buildx --platform linux/amd64,linux/arm64 -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
