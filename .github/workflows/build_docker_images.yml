@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  UBUNTU_DIST: focal
+  UBUNTU_DIST: jellyfish
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
