@@ -32,7 +32,7 @@ jobs:
       - id: build
         name: building ubuntu
         run: |
-          docker buildx --platform linux/amd64,linux/arm64 -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker buildx build --platform linux/amd64,linux/arm64 -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
