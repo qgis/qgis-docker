@@ -21,12 +21,7 @@ echo "MAJOR_QGIS_VERSION: ${MAJOR_QGIS_VERSION}"
 echo "UBUNTU_DIST: ${UBUNTU_DIST}"
 echo "QGIS_UBUNTU_PPA: ${QGIS_UBUNTU_PPA}"
 
-docker buildx build --platform linux/amd64,linux/arm64 --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA} -t opengisch/qgis-server:${RELEASE_TYPE} .
+for TAG in "${RELEASE_TYPE}" "${MAJOR_QGIS_VERSION}" "${QGIS_VERSION}"; do
+  docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA} -t opengisch/qgis-server:${TAG} .
+done
 
-docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${RELEASE_TYPE}
-docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${MAJOR_QGIS_VERSION}
-docker tag opengisch/qgis-server:${RELEASE_TYPE} opengisch/qgis-server:${QGIS_VERSION}
-
-docker push opengisch/qgis-server:${RELEASE_TYPE}
-docker push opengisch/qgis-server:${MAJOR_QGIS_VERSION}
-docker push opengisch/qgis-server:${QGIS_VERSION}

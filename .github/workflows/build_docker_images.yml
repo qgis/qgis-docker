@@ -43,7 +43,7 @@ jobs:
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
-          docker push opengisch/qgis-server:nightly
+          docker buildx build --push --platform linux/amd64,linux/arm64 -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
 
   testing-ubuntu:
     runs-on: ubuntu-latest
