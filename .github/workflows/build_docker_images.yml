@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  UBUNTU_DIST: jammy
+  DEFAULT_UBUNTU_DIST: focal  # for the default dist, no suffix to tag
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
@@ -19,15 +19,6 @@ jobs:
     name: build nightly
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-        with:
-          image: tonistiigi/binfmt:latest
-          platforms: arm64,arm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
@@ -38,35 +29,21 @@ jobs:
       - id: build
         name: building ubuntu
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker build -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
-          docker buildx build --push --platform linux/amd64,linux/arm64 -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker push opengisch/qgis-server:nightly
 
-  testing-ubuntu:
+  build:
     runs-on: ubuntu-latest
-    name: testing ubuntu
-    steps:
-      - uses: actions/checkout@v2
-      - id: testing
-        name: testing ubuntu
-        run: |
-          docker build -t opengisch/qgis-server .
-          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server
-          docker exec -i qgis-server dpkg -l qgis-server
-          sleep 5
-          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+    name: build
+    strategy:
+      matrix:
+        ubuntu_dist: [ 'focal', 'jammy' ]
+        version: ['stable', 'ltr']
 
-  determinejob:
-    runs-on: ubuntu-latest
-    name: determine versions to update
-    outputs:
-      update_stable: ${{ steps.determine.outputs.update_stable }}
-      qgis_stable: ${{ steps.determine.outputs.qgis_stable }}
-      update_ltr: ${{ steps.determine.outputs.update_ltr }}
-      qgis_ltr: ${{ steps.determine.outputs.qgis_ltr }}
     steps:
       - uses: actions/checkout@v2
 
@@ -76,90 +53,49 @@ jobs:
       - id: determine
         name: determine QGIS and Docker versions
         run : |
-          DOCKER=$(./scripts/get_docker_image_version.py)
-          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${UBUNTU_DIST})
+          DOCKER=$(./scripts/get_docker_image_version.py --dist=${{ matrix.ubuntu_dist }} --default-dist=${DEFAULT_UBUNTU_DIST})
+          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${{ matrix.ubuntu_dist }})
 
-          DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable")
-          DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr")
-          QGIS_STABLE=$(echo "${QGIS}" | jq ".stable")
-          QGIS_LTR=$(echo "${QGIS}" | jq ".ltr")
+          DOCKER_VERSION=$(echo "${DOCKER}" | jq ".${{ matrix.version }}")
+          QGIS_VERSION=$(echo "${QGIS}" | jq ".${{ matrix.version }}")
 
-          echo "Existing stable docker: ${DOCKER_STABLE}"
-          echo "Available stable QGIS: ${QGIS_STABLE}"
-          UPDATE_STABLE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_STABLE}) < version.parse(${QGIS_STABLE}) else 0)")
-          if [[ ${UPDATE_STABLE} == 1 ]]; then
-            echo "--> stable will be updated"
+          echo "Existing ${{ matrix.version }} docker: ${DOCKER_VERSION}"
+          echo "Available ${{ matrix.version }} QGIS: ${QGIS_VERSION}"
+          
+          WILL_UPDATE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_VERSION}) < version.parse(${QGIS_VERSION}) else 0)")
+          if [[ ${WILL_UPDATE} == 1 ]]; then
+            echo "--> ${{ matrix.version }} will be updated"
           else
-            echo "--> stable is up to date"
-          fi
-          echo "Existing LTR docker: ${DOCKER_LTR}"
-          echo "Available LTR QGIS: ${QGIS_LTR}"
-          UPDATE_LTR=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_LTR}) < version.parse(${QGIS_LTR}) else 0)")
-          if [[ ${UPDATE_LTR} == 1 ]]; then
-            echo "--> LTR will be updated"
-          else
-            echo "--> LTR is up to date"
+            echo "--> ${{ matrix.version }} is up to date"
           fi
 
           # echo output for github worflows
-          echo "::set-output name=update_stable::${UPDATE_STABLE}"
-          echo "::set-output name=update_ltr::${UPDATE_LTR}"
-          echo "::set-output name=qgis_stable::${QGIS_STABLE//\"/}"
-          echo "::set-output name=qgis_ltr::${QGIS_LTR//\"/}"
-
-
-  build-ubuntu-stable:
-    runs-on: ubuntu-latest
-    needs: [determinejob, testing-ubuntu]
-    if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v2
+          echo "::set-output name=will_update::${WILL_UPDATE}"
+          echo "::set-output name=qgis_minor_version::${QGIS_VERSION//\"/}"
 
       - name: Set up QEMU
+        if: ${{ steps.determine.outputs.will_update == 1 }}
         uses: docker/setup-qemu-action@v1
         with:
           image: tonistiigi/binfmt:latest
           platforms: arm64,arm
 
       - name: Set up Docker Buildx
+        if: ${{ steps.determine.outputs.will_update == 1 }}
         uses: docker/setup-buildx-action@v1
 
       - name: Login to Docker Hub
+        if: ${{ steps.determine.outputs.will_update == 1 }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - id: build
-        name: build ubuntu stable image
+        if: ${{ steps.determine.outputs.will_update == 1 }}
+        name: build ubuntu image
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh stable ${{needs.determinejob.outputs.qgis_stable}} ${UBUNTU_DIST}
+        run: ./scripts/build-push-docker.sh stable ${{steps.determine.outputs.qgis_stable}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
 
-  build-ubuntu-ltr:
-    runs-on: ubuntu-latest
-    needs: [determinejob, testing-ubuntu]
-    if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-        with:
-          image: tonistiigi/binfmt:latest
-          platforms: arm64,arm
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - id: build
-        name: build ubuntu LTR image
-        env:
-          DOCKER_USERNAME: ${{ secrets.docker_username }}
-          DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh ltr ${{needs.determinejob.outputs.qgis_ltr}} ${UBUNTU_DIST}

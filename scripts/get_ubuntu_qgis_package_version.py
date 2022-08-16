@@ -10,7 +10,7 @@ import json
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dist', help='The Ubuntu distribution', default='bionic')
+    parser.add_argument('-d', '--dist', help='The Ubuntu distribution', default='focal')
     args = parser.parse_args()
     dist = args.dist
 
