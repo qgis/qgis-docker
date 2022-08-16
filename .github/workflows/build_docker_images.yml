@@ -98,5 +98,5 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh stable ${{steps.determine.outputs.qgis_version}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
+        run: ./scripts/build-push-docker.sh ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
 
