@@ -27,10 +27,12 @@ TAGS="${RELEASE_TYPE}-${UBUNTU_DIST} ${MAJOR_QGIS_VERSION}-${UBUNTU_DIST} ${QGIS
 if [[ ${UBUNTU_DIST} == ${DEFAULT_UBUNTU_DIST} ]]; then
   TAGS="${RELEASE_TYPE} ${MAJOR_QGIS_VERSION} ${QGIS_VERSION} ${TAGS}"
 fi
-
 echo "TAGS: ${TAGS}"
 
+ALL_TAGS=""
 for TAG in ${TAGS}; do
-  docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA} -t opengisch/qgis-server:${TAG} .
+  ALL_TAGS="${ALL_TAGS} --tag opengisch/qgis-server:${TAG}"
 done
+
+docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA}  ${ALL_TAGS} .
 

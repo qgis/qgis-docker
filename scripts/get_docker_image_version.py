@@ -5,7 +5,7 @@
 
 import requests
 import json
-import re
+#import re
 import argparse
 
 url = 'https://registry.hub.docker.com/v2/repositories/opengisch/qgis-server/tags?page_size=10000'
@@ -16,10 +16,10 @@ tags = json.loads(data)['results']
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--dist', help='The Ubuntu distribution')
-    parser.add_argument('-d', '--default-dist', help='The default Ubuntu distribution, for which no suffix is in the tag')
+    #parser.add_argument('-d', '--default-dist', help='The default Ubuntu distribution, for which no suffix is in the tag')
     args = parser.parse_args()
     distro = args.dist
-    default_distro = args.default_dist
+    #default_distro = args.default_dist
 
     stable_sha = None
     ltr_sha = None
@@ -34,8 +34,8 @@ if __name__ == "__main__":
             ltr_sha = tag['images'][0]['digest']  # sha
         elif tag['name'].endswith(f'-{distro}'):
             availables_tags[tag['name']] = tag['images'][0]['digest']
-        elif distro == default_distro and re.match(r'^[.0-9]+$', tag['name']):
-            availables_tags[tag['name']] = tag['images'][0]['digest']
+        #elif distro == default_distro and re.match(r'^[.0-9]+$', tag['name']):
+        #    availables_tags[tag['name']] = tag['images'][0]['digest']
 
     # determine what is ltr and stable
     stable = ""

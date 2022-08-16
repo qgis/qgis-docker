@@ -40,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     name: build
     strategy:
+      fail-fast: false
       matrix:
         ubuntu_dist: [ 'focal', 'jammy' ]
         version: ['stable', 'ltr']
@@ -53,7 +54,7 @@ jobs:
       - id: determine
         name: determine QGIS and Docker versions
         run : |
-          DOCKER=$(./scripts/get_docker_image_version.py --dist=${{ matrix.ubuntu_dist }} --default-dist=${DEFAULT_UBUNTU_DIST})
+          DOCKER=$(./scripts/get_docker_image_version.py --dist=${{ matrix.ubuntu_dist }})
           QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${{ matrix.ubuntu_dist }})
 
           DOCKER_VERSION=$(echo "${DOCKER}" | jq ".${{ matrix.version }}")
