@@ -72,7 +72,7 @@ jobs:
 
           # echo output for github worflows
           echo "::set-output name=will_update::${WILL_UPDATE}"
-          echo "::set-output name=qgis_minor_version::${QGIS_VERSION//\"/}"
+          echo "::set-output name=qgis_version::${QGIS_VERSION//\"/}"
 
       - name: Set up QEMU
         if: ${{ steps.determine.outputs.will_update == 1 }}
@@ -98,5 +98,5 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh stable ${{steps.determine.outputs.qgis_stable}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
+        run: ./scripts/build-push-docker.sh stable ${{steps.determine.outputs.qgis_version}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
 
