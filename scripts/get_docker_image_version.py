@@ -33,9 +33,9 @@ if __name__ == "__main__":
     availables_tags = dict()
 
     for tag in tags:
-        if tag['name'].startswith('stable'):
+        if tag['name'] == f'stable-{distro}':
             stable_sha = tag['images'][0]['digest']  # sha
-        elif tag['name'].startswith('ltr'):
+        elif tag['name'] == f'ltr-{distro}':
             ltr_sha = tag['images'][0]['digest']  # sha
         elif tag['name'].endswith(f'-{distro}'):
             availables_tags[tag['name']] = tag['images'][0]['digest']

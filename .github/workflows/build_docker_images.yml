@@ -26,10 +26,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - id: build
+      - id: build server nightly
         name: building ubuntu
         run: |
-          docker build -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          docker build -t opengisch/qgis-server:nightly -f server.Dockerfile --build-arg repo=ubuntu-nightly .
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
