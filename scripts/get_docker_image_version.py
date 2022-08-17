@@ -5,7 +5,7 @@
 
 import requests
 import json
-#import re
+import re
 import argparse
 
 if __name__ == "__main__":
@@ -32,15 +32,16 @@ if __name__ == "__main__":
     # get available tags
     availables_tags = dict()
 
+    # get the full version
+    match = f'^\d\.\d+\.\d+-{distro}$'
+
     for tag in tags:
         if tag['name'] == f'stable-{distro}':
             stable_sha = tag['images'][0]['digest']  # sha
         elif tag['name'] == f'ltr-{distro}':
             ltr_sha = tag['images'][0]['digest']  # sha
-        elif tag['name'].endswith(f'-{distro}'):
+        elif re.match(match, tag['name']):
             availables_tags[tag['name']] = tag['images'][0]['digest']
-        #elif distro == default_distro and re.match(r'^[.0-9]+$', tag['name']):
-        #    availables_tags[tag['name']] = tag['images'][0]['digest']
 
     # determine what is ltr and stable
     stable = ""
