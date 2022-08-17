@@ -10,17 +10,23 @@ import json
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('-q', '--qgis', help='desktop or server', choices=['desktop', 'server'])
     parser.add_argument('-d', '--dist', help='The Ubuntu distribution', default='focal')
     args = parser.parse_args()
     dist = args.dist
+
+    if args.qgis == 'dekstop':
+        package_name = 'qgis'
+    else:
+        package_name = 'qgis-server'
 
     data = {}
     for ltr in (True, False):
         url = 'https://qgis.org/ubuntu{}'.format('-ltr' if ltr else '')
         components = ['main']
         repo = APTRepository(url, dist, components)
-        package = repo.get_packages_by_name('qgis-server')[0]
-        assert package.package == 'qgis-server'
+        package = repo.get_packages_by_name(package_name)[0]
+        assert package.package == package_name
         # https://regex101.com/r/lkuibv/2
         p = re.compile('^1:(\d(?:\.\d+)+)(?:\+\d+{})(?:\-\d+)?$'.format(dist))
         m = p.match(package.version)

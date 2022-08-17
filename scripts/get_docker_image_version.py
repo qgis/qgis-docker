@@ -8,18 +8,23 @@ import json
 #import re
 import argparse
 
-url = 'https://registry.hub.docker.com/v2/repositories/opengisch/qgis-server/tags?page_size=10000'
-data = requests.get(url).content.decode('utf-8')
-tags = json.loads(data)['results']
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('-q', '--qgis', help='desktop or server', choices=['desktop', 'server'])
     parser.add_argument('-u', '--dist', help='The Ubuntu distribution')
     #parser.add_argument('-d', '--default-dist', help='The default Ubuntu distribution, for which no suffix is in the tag')
     args = parser.parse_args()
     distro = args.dist
     #default_distro = args.default_dist
+
+    if args.qgis == 'dekstop':
+        repo_name = 'qgis'
+    else:
+        repo_name = 'qgis-server'
+
+    url = f'https://registry.hub.docker.com/v2/repositories/opengisch/{repo_name}/tags?page_size=10000'
+    data = requests.get(url).content.decode('utf-8')
+    tags = json.loads(data)['results']
 
     stable_sha = None
     ltr_sha = None

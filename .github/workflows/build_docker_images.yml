@@ -25,7 +25,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          
+
       - id: build
         name: building ubuntu
         run: |
@@ -42,8 +42,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        qgis_type: ['desktop', 'server']
         ubuntu_dist: [ 'focal', 'jammy' ]
         version: ['stable', 'ltr']
+
 
     steps:
       - uses: actions/checkout@v2
@@ -54,8 +56,8 @@ jobs:
       - id: determine
         name: determine QGIS and Docker versions
         run : |
-          DOCKER=$(./scripts/get_docker_image_version.py --dist=${{ matrix.ubuntu_dist }})
-          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${{ matrix.ubuntu_dist }})
+          DOCKER=$(./scripts/get_docker_image_version.py --qgis=${{ matrix.qgis_type }} --dist=${{ matrix.ubuntu_dist }})
+          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py --qgis=${{ matrix.qgis_type }} --dist ${{ matrix.ubuntu_dist }})
 
           DOCKER_VERSION=$(echo "${DOCKER}" | jq ".${{ matrix.version }}")
           QGIS_VERSION=$(echo "${QGIS}" | jq ".${{ matrix.version }}")
@@ -98,5 +100,5 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
+        run: ./scripts/build-push-docker.sh ${{ matrix.qgis_type }} ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
 

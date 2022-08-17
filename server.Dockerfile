@@ -21,7 +21,7 @@
 ARG ubuntu_dist=jammy
 
 FROM ubuntu:${ubuntu_dist}
-LABEL maintainer="GEM Foundation <devops@openquake.org>"
+LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
 ARG ubuntu_dist
 ARG repo=ubuntu
