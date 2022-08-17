@@ -48,8 +48,10 @@ if __name__ == "__main__":
     for tag, sha in availables_tags.items():
         if sha == stable_sha:
             stable = tag
+            stable = stable.replace(f'-{distro}', '')
         elif sha == ltr_sha:
             ltr = tag
+            ltr = ltr.replace(f'-{distro}', '')
 
     output = {'stable': stable, 'ltr': ltr}
     print(json.dumps(output))
