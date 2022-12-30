@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: gautamkrishnar/keepalive-workflow@v1
+
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
