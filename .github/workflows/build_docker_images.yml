@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     name: build nightly
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: gautamkrishnar/keepalive-workflow@v1
 
@@ -52,7 +52,7 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - id: python_deps
         run: pip3 install packaging
