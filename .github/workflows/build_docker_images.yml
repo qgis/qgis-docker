@@ -19,6 +19,11 @@ jobs:
   build-nightly:
     runs-on: ubuntu-latest
     name: build nightly
+    strategy:
+      fail-fast: false
+      matrix:
+        qgis_type: [ 'desktop', 'server' ]
+
     steps:
       - uses: actions/checkout@v3
 
@@ -30,15 +35,24 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - id: server-nightly
-        name: building ubuntu
+      - name: define tag
         run: |
-          docker build -t opengisch/qgis-server:nightly -f server.Dockerfile --build-arg repo=ubuntu-nightly .
+          echo "DOCKER_TAG=$( [[ ${{ matrix.qgis_type }} = 'server' ]] && echo 'qgis-server' || echo 'qgis' )" >> $GITHUB_ENV
+
+      - id: nightly
+        name: building nightly
+        run: docker build -t opengisch/${{ env.DOCKER_TAG }}:nightly -f ${{ matrix.qgis_type }}.Dockerfile --build-arg repo=ubuntu-nightly .
+
+      - name: test
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
-          docker push opengisch/qgis-server:nightly
+
+      - name: push
+        run: docker push opengisch/${{ env.DOCKER_TAG }}:nightly
 
   build:
     runs-on: ubuntu-latest
@@ -76,9 +90,8 @@ jobs:
             echo "--> ${{ matrix.version }} is up to date"
           fi
 
-          # echo output for github worflows
-          echo "::set-output name=will_update::${WILL_UPDATE}"
-          echo "::set-output name=qgis_version::${QGIS_VERSION//\"/}"
+          echo "will_update=${WILL_UPDATE}" >> $GITHUB_OUTPUT
+          echo "qgis_version=${QGIS_VERSION//\"/}">> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         if: ${{ steps.determine.outputs.will_update == 1 }}
