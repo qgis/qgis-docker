@@ -25,7 +25,7 @@ jobs:
         qgis_type: [ 'desktop', 'server' ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: gautamkrishnar/keepalive-workflow@v1
 
@@ -66,7 +66,7 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - id: python_deps
         run: pip3 install packaging
