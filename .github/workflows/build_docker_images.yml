@@ -102,7 +102,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: ${{ steps.determine.outputs.will_update == 1 }}
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
         if: ${{ steps.determine.outputs.will_update == 1 }}
