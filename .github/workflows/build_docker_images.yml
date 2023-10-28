@@ -85,9 +85,9 @@ jobs:
           
           WILL_UPDATE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_VERSION}) < version.parse(${QGIS_VERSION}) else 0)")
           if [[ ${WILL_UPDATE} == 1 ]]; then
-            echo "--> ${{ matrix.version }} will be updated"
+            echo "--> ${{ matrix.version }} will be updated from ${DOCKER_VERSION} to ${QGIS_VERSION}."
           else
-            echo "--> ${{ matrix.version }} is up to date"
+            echo "--> ${{ matrix.version }} is up to date (${QGIS_VERSION})."
           fi
 
           echo "will_update=${WILL_UPDATE}" >> $GITHUB_OUTPUT
