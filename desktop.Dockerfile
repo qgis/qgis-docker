@@ -13,6 +13,6 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
     chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
     add-apt-repository "deb https://qgis.org/${repo} ${ubuntu_dist} main" && \
     apt update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip qgis python3-qgis python3-qgis-common \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip qgis python3-qgis python3-qgis-common python3-venv \
       python3-pytest python3-mock xvfb && \
     apt-get clean
