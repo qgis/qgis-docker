@@ -7,8 +7,6 @@ A simple QGIS desktop Docker image
 
 ## QGIS 3 server via Docker
 
-[![Build Status](https://travis-ci.org/gem/oq-qgis-server.svg?branch=master)](https://travis-ci.org/gem/oq-qgis-server)
-
 ### General information
 
 The Docker image is built using *Ubuntu 20.04 (focal) and 22.04 (jammy)* and official QGIS DEBs from https://qgis.org/.
