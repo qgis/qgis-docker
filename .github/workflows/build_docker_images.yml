@@ -61,7 +61,7 @@ jobs:
       fail-fast: false
       matrix:
         qgis_type: ['desktop', 'server']
-        ubuntu_dist: [ 'focal', 'jammy' ]
+        ubuntu_dist: [ 'focal', 'jammy', 'lunar' ]
         version: ['stable', 'ltr']
 
 
