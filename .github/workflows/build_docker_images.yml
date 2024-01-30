@@ -82,8 +82,13 @@ jobs:
 
           echo "Existing ${{ matrix.version }} docker: ${DOCKER_VERSION}"
           echo "Available ${{ matrix.version }} QGIS: ${QGIS_VERSION}"
-          
-          WILL_UPDATE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_VERSION} or '0') < version.parse(${QGIS_VERSION}) else 0)")
+
+          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+            echo "Force build on workflow dispatch"
+            WILL_UPDATE=1
+          else
+            WILL_UPDATE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_VERSION} or '0') < version.parse(${QGIS_VERSION}) else 0)")
+          fi
           if [[ ${WILL_UPDATE} == 1 ]]; then
             echo "--> ${{ matrix.version }} will be updated from ${DOCKER_VERSION} to ${QGIS_VERSION}."
           else
