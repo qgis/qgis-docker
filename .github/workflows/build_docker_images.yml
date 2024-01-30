@@ -92,7 +92,7 @@ jobs:
           echo 6
           echo ${GITHUB_EVENT_NAME}
           
-          if [[ ${GITHUB_EVENT_NAME} == 'workflow_dispatch' ]]; then
+          if [[ ${GITHUB_EVENT_NAME} = "workflow_dispatch" ]]; then
             echo "Force build on workflow dispatch."
             WILL_UPDATE=1
           fi
