@@ -87,7 +87,7 @@ jobs:
 
           WILL_UPDATE=$(python3 -c "from packaging import version; print(1 if version.parse(${DOCKER_VERSION} or '0') < version.parse(${QGIS_VERSION}) else 0)")
         
-          if [[ '$GITHUB_EVENT_NAME' == 'workflow_dispatch' ]]; then
+          if [[ ${GITHUB_EVENT_NAME} == 'workflow_dispatch' ]]; then
             echo "Force build on workflow dispatch."
             WILL_UPDATE=1
           fi
