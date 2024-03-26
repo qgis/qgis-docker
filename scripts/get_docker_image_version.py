@@ -22,7 +22,7 @@ if __name__ == "__main__":
     else:
         repo_name = 'qgis-server'
 
-    url = f'https://registry.hub.docker.com/v2/repositories/opengisch/{repo_name}/tags?page_size=10000'
+    url = f'https://registry.hub.docker.com/v2/repositories/qgis/{repo_name}/tags?page_size=10000'
     data = requests.get(url).content.decode('utf-8')
     tags = json.loads(data)['results']
 

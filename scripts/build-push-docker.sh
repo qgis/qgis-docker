@@ -40,7 +40,7 @@ echo "TAGS: ${TAGS}"
 
 ALL_TAGS=""
 for TAG in ${TAGS}; do
-  ALL_TAGS="${ALL_TAGS} --tag opengisch/${REPO}:${TAG}"
+  ALL_TAGS="${ALL_TAGS} --tag qgis/${REPO}:${TAG}"
 done
 
 docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA}  ${ALL_TAGS} -f ${QGIS_TYPE}.Dockerfile .

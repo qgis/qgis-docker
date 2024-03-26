@@ -21,4 +21,4 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: opengisch/qgis-server
+          repository: qgis/qgis-server
