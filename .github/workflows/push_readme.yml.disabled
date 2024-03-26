@@ -3,7 +3,7 @@ name: Push description (README.md) to Docker Hub
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - README.md
       - .github/workflows/push_readme.yml
