@@ -52,7 +52,10 @@ jobs:
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
 
       - name: push
-        run: docker push qgis/${{ env.DOCKER_TAG }}:nightly
+        run: |
+          docker push qgis/${{ env.DOCKER_TAG }}:nightly
+          docker tag qgis/${{ env.DOCKER_TAG }}:nightly qgis/${{ env.DOCKER_TAG }}:latest
+          docker push qgis/${{ env.DOCKER_TAG }}:latest
 
   build:
     runs-on: ubuntu-latest
