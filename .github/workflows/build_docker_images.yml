@@ -6,6 +6,9 @@ on:
     - cron: '0 6 * * 0'
     # runs every day
     # - cron: '0 6 * * *'
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -52,12 +55,14 @@ jobs:
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
 
       - name: push
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
           docker push qgis/${{ env.DOCKER_TAG }}:nightly
           docker tag qgis/${{ env.DOCKER_TAG }}:nightly qgis/${{ env.DOCKER_TAG }}:latest
           docker push qgis/${{ env.DOCKER_TAG }}:latest
 
   build:
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     name: build
     strategy:
