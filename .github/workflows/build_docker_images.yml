@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  DEFAULT_UBUNTU_DIST: focal  # for the default dist, no suffix to tag
+  DEFAULT_UBUNTU_DIST: jammy  # for the default dist, no suffix to tag
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
