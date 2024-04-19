@@ -22,7 +22,7 @@ Known good configurations are:
 - CentOS 8
 - Fedora 29+
 
-See https://github.com/gem/oq-qgis-server/issues/1 for further details.
+See https://github.com/qgis/qgis-docker/issues/1 for further details.
 
 Containers are not tested on hosts running OSes other than Linux.
 
