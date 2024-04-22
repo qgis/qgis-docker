@@ -1,15 +1,12 @@
-This repository automates the build of QGIS and QGIS server Docker images.
+# QGIS Docker
 
-## QGIS Desktop standalone
+This repository automates the build of QGIS desktop and QGIS server Docker images.
 
-A simple QGIS desktop Docker image
-
-
-## QGIS 3 server via Docker
+## QGIS server
 
 ### General information
 
-The Docker image is built using *Ubuntu 20.04 (focal) and 22.04 (jammy)* and official QGIS DEBs from https://qgis.org/.
+The Docker image is built using *Ubuntu 20.04 (focal) and 22.04 (jammy)* and official QGIS DEBs from <https://qgis.org/>.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 ### Requisites
@@ -22,7 +19,7 @@ Known good configurations are:
 - CentOS 8
 - Fedora 29+
 
-See https://github.com/qgis/qgis-docker/issues/1 for further details.
+See <https://github.com/qgis/qgis-docker/issues/1> for further details.
 
 Containers are not tested on hosts running OSes other than Linux.
 
@@ -35,38 +32,33 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 Image name: `qgis/qgis-server`
 
-### QGIS stable
-- `stable` | `stable-ubuntu`
-
-### QGIS LTR
-- `ltr` | `ltr-ubuntu`
+- **QGIS stable**: `stable` | `stable-ubuntu`
+- **QGIS LTR**: `ltr` | `ltr-ubuntu`
 
 Example:
 
-```bash
-$ docker pull qgis/qgis-server:ltr
+```sh
+docker pull qgis/qgis-server:ltr
 ```
 
 ### Build the container
 
-#### QGIS stable 
+#### QGIS stable
 
-```bash
-$ docker build -t qgis/qgis-server:stable .
-```
+```sh
+# stable version
+docker build -t qgis/qgis-server:stable .
 
-#### QGIS LTR
-
-```bash
-$ docker build --build-arg repo=ubuntu-ltr -t qgis/qgis-server:ltr .
+# ltr version
+docker build --build-arg repo=ubuntu-ltr -t qgis/qgis-server:ltr .
 ```
 
 You may skip this step. The container will be downloaded from the Docker Hub.
 
 ### Run the docker and map host data
 
-```
-$ docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 qgis/qgis-server:ltr
+```sh
+docker run -v $(pwd)/data:/io/data --name qgis-server -d -p 8010:80 qgis/qgis-server:ltr
 ```
 
 `WMS` and `WFS` for a specific project will be published at `http://localhost:8010/ogc/<project_name>`.
@@ -78,7 +70,8 @@ Direct access to `WFS3` is accessible via `http://localhost:8010/wfs3/`.
 
 The [connection service file](https://www.postgresql.org/docs/12/libpq-pgservice.html) allows connection parameters to be associated with a single service name and thus to be able to use the same QGIS projects in different environments. This could also be achieved with [QGIS authentications](https://docs.qgis.org/3.16/en/docs/user_manual/auth_system/auth_workflows.html#database-authentication).
 To use a pg_service file you need to bind mount it as shown in the [docker-compose](docker-compose.yml) or on run:
-```
+
+```sh
 -v $(pwd)/conf/pg_service.conf:/etc/postgresql-common/pg_service.conf:ro
 ```
 
@@ -87,33 +80,20 @@ To use a pg_service file you need to bind mount it as shown in the [docker-compo
 
 Plugins, custom fonts and SVG can be optionally exposed from host to the containers:
 
-##### Plugins
-
-```
--v $(pwd)/plugins:/io/plugins
-```
-
-##### Fonts
-
-```
--v $(pwd)/fonts:/usr/share/fonts
-```
-
-#### SVG symbols
-
-```
--v $(pwd)/svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg
-```
+- plugins: `-v $(pwd)/plugins:/io/plugins`
+- fonts: `-v $(pwd)/fonts:/usr/share/fonts`
+- svg symbols: `-v $(pwd)/svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg`
 
 Example:
-```
-$ docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -v $(pwd)/fonts:/usr/share/fonts --name qgis-server -d -p 8010:80 openquake/qgis-server:ltr
+
+```sh
+docker run -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins -v $(pwd)/fonts:/usr/share/fonts --name qgis-server -d -p 8010:80 qgis/qgis-server:ltr
 ```
 
 #### Access the container via bash
 
-```
-$ docker exec -ti qgis-server /bin/bash
+```sh
+docker exec -ti qgis-server /bin/bash
 ```
 
 where `qgis-server` is the name of the container.
@@ -122,27 +102,27 @@ where `qgis-server` is the name of the container.
 
 QGIS server log can retreived via `docker logs`
 
-```
-$ docker logs [-f] qgis-server
+```sh
+docker logs [-f] qgis-server
 ```
 
 where `qgis-server` is the name of the container.
 
 Default log level is set to `warning`. Log level can be increased during container deployment passing the `-e QGIS_SERVER_LOG_LEVEL=0` option:
 
-```
-$ docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 openquake/qgis-server:ltr
+```sh
+docker run -e QGIS_SERVER_LOG_LEVEL=0 -v $(pwd)/data:/io/data -v $(pwd)/plugins:/io/plugins --name qgis-server -d -p 8010:80 qgis/qgis-server:ltr
 ```
 
-### Run the docker and map host data (via docker-compose)
+### Run multiple instances of QGIS server
 
 Adjust first the configuration in `conf/nginx.conf` with the proper number of expected workers
 and `docker-compose.yml` with the path of data folder on the host.
 
 Then:
 
-```
-$ docker-compose up -d --scale qgis-server=N
+```sh
+docker-compose up -d --scale qgis-server=N
 ```
 
 Where N is the number of expected QGIS server workers.
@@ -152,8 +132,8 @@ Where N is the number of expected QGIS server workers.
 
 `$(pwd)/data` must have the following structure:
 
-```
-data 
+```text
+data
  |
  |-- <project_name>
       |-- <project_name>.qgs
@@ -163,7 +143,7 @@ data
 
 `$(pwd)/plugins` must have the following structure:
 
-```
+```text
 plugins
  |
  |-- <plugin_name>
@@ -182,7 +162,7 @@ The following variables can be customized during container deployment:
 
 When `SKIP_NGINX` is set to a different value than `0` or `false` the embedded copy of Nginx will not be started and an external reverse proxy is then required to access the FastCGI QGIS backend.
 
-- `SKIP_NGINX`: default is _unset_ (do not skip Nginx startup)
+- `SKIP_NGINX`: default is *unset* (do not skip Nginx startup)
 
 #### QGIS
 
@@ -200,9 +180,12 @@ It is also possible to customized the ID of the user running QGIS server process
 
 Example: `docker run -e QGIS_USER=1000` or `docker run -e QGIS_USER=$(id -u qgis)`
 
-
-## Notes
+### Notes
 
 GeoPackages do not play well with multiple processes having gpkg files opened in `rw` mode. By default QGIS server processes lack write permission on `/io/data`.
 If it is required to let QGIS server write data to `/io/data` make sure that either you are using a process-safe datastore (i.e. a Postgres backend) or you are
 limiting horizontal scaling to one container only. QGIS server user can be customized via the `QGIS_USER` environment variable.
+
+## QGIS Desktop
+
+There is currently no documentation how to run the QGIS Desktop via docker.
