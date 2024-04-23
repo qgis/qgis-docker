@@ -37,7 +37,7 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
 # This part is kept to allow the container to be used in
 # standalone mode, without composing it with 'nginx'
 ADD conf/qgis-server-nginx.conf /etc/nginx/nginx.conf
-ADD start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
+ADD ../start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
 
 ENV QGIS_PREFIX_PATH /usr
 ENV QGIS_PLUGINPATH /io/plugins
