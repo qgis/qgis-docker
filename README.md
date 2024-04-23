@@ -1,5 +1,3 @@
-This repository automates the build of QGIS desktop and QGIS server Docker images.
-
 # QGIS Docker Images
 
 This repository automates the build of QGIS desktop and QGIS server Docker images. The respective docs are located here:
