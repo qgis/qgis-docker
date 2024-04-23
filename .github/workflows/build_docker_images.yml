@@ -44,12 +44,12 @@ jobs:
 
       - id: nightly
         name: building nightly
-        run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly -f ${{ matrix.qgis_type }}.Dockerfile --build-arg repo=ubuntu-nightly .
+        run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly --build-arg repo=ubuntu-nightly ${{ matrix.qgis_type }}
 
       - name: test
         if: ${{ matrix.qgis_type == 'server' }}
         run: |
-          docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server qgis/qgis-server:nightly
+          docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 --name qgis-server qgis/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
