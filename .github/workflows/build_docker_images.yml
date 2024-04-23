@@ -44,7 +44,7 @@ jobs:
 
       - id: nightly
         name: building nightly
-        run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly -f ${{ matrix.qgis_type }}/Dockerfile --build-arg repo=ubuntu-nightly .
+        run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly --build-arg repo=ubuntu-nightly ${{ matrix.qgis_type }}
 
       - name: test
         if: ${{ matrix.qgis_type == 'server' }}
