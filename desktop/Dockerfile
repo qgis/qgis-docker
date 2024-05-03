@@ -1,5 +1,5 @@
 
-ARG ubuntu_dist=jammy
+ARG ubuntu_dist=noble
 
 FROM ubuntu:${ubuntu_dist}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"

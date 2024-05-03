@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ARG ubuntu_dist=jammy
+ARG ubuntu_dist=noble
 
 FROM ubuntu:${ubuntu_dist}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
