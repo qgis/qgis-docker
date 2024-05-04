@@ -7,7 +7,7 @@ They are considered as NOT production ready.
 
 ## General information
 
-The Docker image is built using *Ubuntu 20.04 (focal) and 22.04 (jammy)* and official QGIS DEBs from <https://qgis.org/>.
+The Docker image is built using *Ubuntu 20.04 (focal), 22.04 (jammy) and 24.04 (noble)* and official QGIS DEBs from <https://qgis.org/>.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 ## Requisites
