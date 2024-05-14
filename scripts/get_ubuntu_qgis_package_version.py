@@ -11,8 +11,10 @@ import json
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-q', '--qgis', help='desktop or server', choices=['desktop', 'server'])
-    parser.add_argument('-d', '--dist', help='The Ubuntu distribution', default='focal')
+    parser.add_argument('-o', '--os', help='The operating system', choices=['ubuntu', 'debian'], default='ubuntu')
+    parser.add_argument('-d', '--dist', help='The Ubuntu/Debian distribution', default='focal')
     args = parser.parse_args()
+    os = args.os
     dist = args.dist
 
     if args.qgis == 'dekstop':
@@ -22,7 +24,7 @@ if __name__ == "__main__":
 
     data = {}
     for ltr in (True, False):
-        url = 'https://qgis.org/ubuntu{}'.format('-ltr' if ltr else '')
+        url = 'https://qgis.org/{}{}'.format(os, '-ltr' if ltr else '')
         components = ['main']
         repo = APTRepository(url, dist, components)
         package = repo.get_packages_by_name(package_name)[0]

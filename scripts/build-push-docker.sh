@@ -5,15 +5,16 @@ set -e
 QGIS_TYPE=$1
 RELEASE_TYPE=$2
 QGIS_VERSION=$3
-UBUNTU_DIST=$4
-DEFAULT_UBUNTU_DIST=$5
+OS=$4
+OS_RELEASE=$5
+DEFAULT_OS_RELEASE=$6
 
 MAJOR_QGIS_VERSION=$(echo "${QGIS_VERSION}" | cut -d. -f1,2)
 
 if [[ ${RELEASE_TYPE} =~ ^ltr$ ]]; then
-  QGIS_UBUNTU_PPA='ubuntu-ltr'
+  QGIS_PPA="${OS}-ltr"
 else
-  QGIS_UBUNTU_PPA='ubuntu'
+  QGIS_PPA="${OS}"
 fi
 
 if [[ ${QGIS_TYPE} =~ ^server$ ]]; then
@@ -28,12 +29,13 @@ echo "QGIS_TYPE: ${QGIS_TYPE}"
 echo "RELEASE_TYPE: ${RELEASE_TYPE}"
 echo "QGIS_VERSION: ${QGIS_VERSION}"
 echo "MAJOR_QGIS_VERSION: ${MAJOR_QGIS_VERSION}"
-echo "UBUNTU_DIST: ${UBUNTU_DIST}"
-echo "DEFAULT_UBUNTU_DIST: ${DEFAULT_UBUNTU_DIST}"
-echo "QGIS_UBUNTU_PPA: ${QGIS_UBUNTU_PPA}"
+echo "OS: ${OS}"
+echo "OS_RELEASE: ${OS_RELEASE}"
+echo "DEFAULT_OS_RELEASE: ${DEFAULT_OS_RELEASE}"
+echo "QGIS_PPA: ${QGIS_PPA}"
 
-TAGS="${RELEASE_TYPE}-${UBUNTU_DIST} ${MAJOR_QGIS_VERSION}-${UBUNTU_DIST} ${QGIS_VERSION}-${UBUNTU_DIST}"
-if [[ ${UBUNTU_DIST} == ${DEFAULT_UBUNTU_DIST} ]]; then
+TAGS="${RELEASE_TYPE}-${OS_RELEASE} ${MAJOR_QGIS_VERSION}-${OS_RELEASE} ${QGIS_VERSION}-${OS_RELEASE}"
+if [[ ${OS_RELEASE} == ${DEFAULT_OS_RELEASE} ]]; then
   TAGS="${RELEASE_TYPE} ${MAJOR_QGIS_VERSION} ${QGIS_VERSION} ${TAGS}"
 fi
 echo "TAGS: ${TAGS}"
@@ -43,5 +45,5 @@ for TAG in ${TAGS}; do
   ALL_TAGS="${ALL_TAGS} --tag qgis/${REPO}:${TAG}"
 done
 
-docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg ubuntu_dist=${UBUNTU_DIST} --build-arg repo=${QGIS_UBUNTU_PPA}  ${ALL_TAGS} ${QGIS_TYPE}
+docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg os=${OS} --build-arg release=${OS_RELEASE} --build-arg repo=${QGIS_PPA}  ${ALL_TAGS} ${QGIS_TYPE}
 
