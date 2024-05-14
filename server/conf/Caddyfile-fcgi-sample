@@ -1,0 +1,39 @@
+example.com {
+    # Set this path to your site's directory.
+    root * /io/www
+
+    # Enable the static file server.
+    file_server
+
+    @ogc {
+        path_regexp ogc_matcher ^/ogc/(.*)
+    }
+
+    @ows {
+        path_regexp ows_matcher ^/ows/(.*)
+    }
+
+    @wfs3 {
+        path_regexp wfs_matcher ^/wfs3/(.*)/
+    }
+
+    reverse_proxy @ogc qgisserver:9993 {
+        transport fastcgi {
+            env QUERY_STRING {query}&map=/io/data/{http.regexp.ogc_matcher.1}.qgs
+        }
+    }
+
+    # https://localhost/ows/bees?SERVICE=WMS&REQUEST=GetCapabilities
+    reverse_proxy @ows qgisserver:9993 {
+        transport fastcgi {
+            env QUERY_STRING {query}&map=/io/data/{http.regexp.ows_matcher.1}.qgs
+        }
+    }
+
+    # https://localhost/wfs3/bees/collections
+    reverse_proxy @wfs3 qgisserver:9993 {
+        transport fastcgi {
+            env QUERY_STRING {query}&map=/io/data/{http.regexp.wfs_matcher.1}.qgs
+        }
+    }
+}

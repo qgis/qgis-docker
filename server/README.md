@@ -26,8 +26,11 @@ Containers are not tested on hosts running OSes other than Linux.
 
 ## Services provided
 
-This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does).
-A sample Nginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
+This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does).  
+
+The following sample configurations are provided for using qgis server directly with fastcgi:
+- nginx: [conf/nginx-fcgi-sample.conf](conf/nginx-fcgi-sample.conf)
+- caddy: [conf/Caddyfile-fcgi-sample](conf/Caddyfile-fcgi-sample)
 
 ## Available tags
 
