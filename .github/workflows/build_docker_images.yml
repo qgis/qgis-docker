@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 env:
-  DEFAULT_UBUNTU_DIST: noble  # for the default dist, no suffix to tag
+  DEFAULT_UBUNTU_RELEASE: noble  # for the default dist, no suffix to tag
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
@@ -69,9 +69,16 @@ jobs:
       fail-fast: false
       matrix:
         qgis_type: ['desktop', 'server']
-        ubuntu_dist: [ 'focal', 'jammy', 'noble' ]
         version: ['stable', 'ltr']
-
+        platform:
+          - os: ubuntu
+            release: focal
+          - os: ubuntu
+            release: jammy
+          - os: ubuntu
+            release: noble
+          - os: debian
+            release: bookworm
 
     steps:
       - uses: actions/checkout@v4
@@ -84,8 +91,8 @@ jobs:
         env: 
           GITHUB_EVENT_NAME: ${{ github.event_name }}
         run : |
-          DOCKER=$(./scripts/get_docker_image_version.py --qgis=${{ matrix.qgis_type }} --dist=${{ matrix.ubuntu_dist }})
-          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py --qgis=${{ matrix.qgis_type }} --dist ${{ matrix.ubuntu_dist }})
+          DOCKER=$(./scripts/get_docker_image_version.py --qgis=${{ matrix.qgis_type }} --dist=${{ matrix.platform.release }})
+          QGIS=$(./scripts/get_ubuntu_qgis_package_version.py --qgis=${{ matrix.qgis_type }} --os=${{ matrix.platform.os }} --dist ${{ matrix.platform.release }})
 
           DOCKER_VERSION=$(echo "${DOCKER}" | jq ".${{ matrix.version }}")
           QGIS_VERSION=$(echo "${QGIS}" | jq ".${{ matrix.version }}")
@@ -133,5 +140,5 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh ${{ matrix.qgis_type }} ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.ubuntu_dist }} ${DEFAULT_UBUNTU_DIST}
+        run: ./scripts/build-push-docker.sh ${{ matrix.qgis_type }} ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.platform.os }} ${{ matrix.platform.release }} ${DEFAULT_UBUNTU_RELEASE}
 
