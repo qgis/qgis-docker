@@ -4,7 +4,7 @@
 - 2020 - 2021 Project sponsored by the [GEM Foundation](https://github.com/gem/) and [OPENGIS.ch](https://github.com/opengisch/)
 - October 2021 Ownership transfer to OPENGIS.ch
 - 2021 - 2024 Project sponsored by [OPENGIS.ch](https://github.com/opengisch/)
-- 2024 - Ownership transfer to QGIS.org
+- 2024 - Donation to QGIS.org
 
 ## Contributors
 
