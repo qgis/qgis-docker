@@ -11,6 +11,7 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
     wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
     chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
     add-apt-repository "deb https://qgis.org/${os} ${release} main" && \
+    add-apt-repository "deb https://qgis.org/${os} ${release} main" && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip qgis python3-qgis python3-qgis-common python3-venv \
       python3-pytest python3-mock xvfb qttools5-dev-tools && \
