@@ -21,4 +21,4 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
 
 # Test version
 COPY scripts/check_version.sh /opt/check_version.sh
-RUN check_version.sh ${release}
+RUN /opt/check_version.sh ${release}
