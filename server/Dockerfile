@@ -25,6 +25,7 @@ LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
 ARG ubuntu_dist
 ARG repo=ubuntu
+ARG qgis_version
 
 RUN apt update && apt install -y gnupg wget software-properties-common && \
     wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
