@@ -1,0 +1,70 @@
+repos:
+  # Fix end of files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: .*\.qgs
+      - id: end-of-file-fixer
+        exclude: .*\.qgs
+      - id: mixed-line-ending
+        exclude: .*\.qgs
+        args:
+          - '--fix=lf'
+
+  # Remove unused imports/variables
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        args:
+          - "--in-place"
+          - "--remove-all-unused-imports"
+          - "--remove-unused-variables"
+          - "--ignore-init-module-imports"
+
+  # Sort imports
+  - repo: https://github.com/pycqa/isort
+    rev: "5.13.2"
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Black formatting
+  - repo: https://github.com/psf/black
+    rev: "24.4.2"
+    hooks:
+      - id: black
+        args: ["--line-length=99"]
+
+  # tool to automatically upgrade syntax for newer versions of the language
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.16.0
+    hooks:
+      - id: pyupgrade
+        args: [--py311-plus]
+
+  # Lint files
+  - repo: https://github.com/pycqa/flake8
+    rev: "7.1.0"
+    hooks:
+      - id: flake8
+        args: [
+          "--max-line-length=115",
+          # ignore long comments (E501), as long lines are formatted by black
+          "--ignore=E501,E203,W503",
+          "--per-file-ignores=__init__.py:F401",
+        ]
+
+#    # Static type-checking with mypy
+#  - repo: https://github.com/pre-commit/mirrors-mypy
+#    rev: 'v1.5.1'
+#    hooks:
+#      - id: mypy
+#        additional_dependencies: [types-pytz, types-Deprecated, types-PyYAML, types-requests, types-tabulate, types-jsonschema, django-stubs]
+#        pass_filenames: false
+#        entry: bash -c 'mypy -p docker-qgis -p docker-app "$@"' --
+
+ci:
+  autofix_prs: true
+  autoupdate_schedule: quarterly
