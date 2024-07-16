@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e 
+set -e
 
 QGIS_TYPE=$1
 RELEASE_TYPE=$2
@@ -46,4 +46,3 @@ for TAG in ${TAGS}; do
 done
 
 docker buildx build --push --platform linux/amd64,linux/arm64 --build-arg os=${OS} --build-arg release=${OS_RELEASE} --build-arg repo=${QGIS_PPA}  ${ALL_TAGS} ${QGIS_TYPE}
-

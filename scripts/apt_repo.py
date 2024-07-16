@@ -6,6 +6,7 @@ import gzip
 import lzma
 import posixpath
 import re
+
 import requests
 
 
@@ -26,7 +27,7 @@ def _download(url):
     # Arguments
     url (str): URL to file
     """
-    return __download_raw(url).decode('utf-8')
+    return __download_raw(url).decode("utf-8")
 
 
 def _download_compressed(base_url):
@@ -39,10 +40,10 @@ def _download_compressed(base_url):
     url (str): URL to file
     """
     decompress = {
-        '': lambda c: c,
-        '.xz': lambda c: lzma.decompress(c),
-        '.gz': lambda c: gzip.decompress(c),
-        '.bzip2': lambda c: bz2.decompress(c)
+        "": lambda c: c,
+        ".xz": lambda c: lzma.decompress(c),
+        ".gz": lambda c: gzip.decompress(c),
+        ".bzip2": lambda c: bz2.decompress(c),
     }
 
     for suffix, method in decompress.items():
@@ -53,7 +54,7 @@ def _download_compressed(base_url):
         except requests.error.URLError:
             continue
 
-        return method(req.content).decode('utf-8')
+        return method(req.content).decode("utf-8")
 
 
 def _get_value(content, key):
@@ -64,7 +65,7 @@ def _get_value(content, key):
     content (str): the content of the Packages/Release file
     key (str): the key to return the value for
     """
-    pattern = key + ': (.*)\n'
+    pattern = key + ": (.*)\n"
     match = re.search(pattern, content)
     try:
         return match.group(1)
@@ -79,44 +80,45 @@ class ReleaseFile:
     # Arguments
     content (str): the content of the Release file
     """
+
     def __init__(self, content):
         self.__content = content.strip()
 
     @property
     def origin(self):
-        return _get_value(self.__content, 'Origin')
+        return _get_value(self.__content, "Origin")
 
     @property
     def label(self):
-        return _get_value(self.__content, 'Label')
+        return _get_value(self.__content, "Label")
 
     @property
     def suite(self):
-        return _get_value(self.__content, 'Suite')
+        return _get_value(self.__content, "Suite")
 
     @property
     def version(self):
-        return _get_value(self.__content, 'Version')
+        return _get_value(self.__content, "Version")
 
     @property
     def codename(self):
-        return _get_value(self.__content, 'Codename')
+        return _get_value(self.__content, "Codename")
 
     @property
     def date(self):
-        return _get_value(self.__content, 'Date')
+        return _get_value(self.__content, "Date")
 
     @property
     def architectures(self):
-        return _get_value(self.__content, 'Architectures').split()
+        return _get_value(self.__content, "Architectures").split()
 
     @property
     def components(self):
-        return _get_value(self.__content, 'Components').split()
+        return _get_value(self.__content, "Components").split()
 
     @property
     def description(self):
-        return _get_value(self.__content, 'Description')
+        return _get_value(self.__content, "Description")
 
 
 class PackagesFile:
@@ -126,6 +128,7 @@ class PackagesFile:
     # Arguments
     content (str): the content of the Packages file
     """
+
     def __init__(self, content):
         self.__content = content.strip()
 
@@ -133,7 +136,7 @@ class PackagesFile:
     def packages(self):
         """Returns all binary packages in this Packages files"""
         packages = []
-        for package_content in self.__content.split('\n\n'):
+        for package_content in self.__content.split("\n\n"):
             if not package_content:
                 continue
 
@@ -150,20 +153,21 @@ class BinaryPackage:
     # Arguments
     content (str): the section of the Packages file for this specific package
     """
+
     def __init__(self, content):
         self.__content = content.strip()
 
     @property
     def package(self):
-        return _get_value(self.__content, 'Package')
+        return _get_value(self.__content, "Package")
 
     @property
     def version(self):
-        return _get_value(self.__content, 'Version')
+        return _get_value(self.__content, "Version")
 
     @property
     def filename(self):
-        return _get_value(self.__content, 'Filename')
+        return _get_value(self.__content, "Filename")
 
 
 class APTRepository:
@@ -181,6 +185,7 @@ class APTRepository:
     APTRepository('https://pkg.jenkins.io/debian/', 'binary')
     ```
     """
+
     def __init__(self, url, dist, components=[]):
         self.url = url
         self.dist = dist
@@ -219,19 +224,14 @@ class APTRepository:
     @property
     def release_file(self):
         """Returns the Release file of this repository"""
-        url = posixpath.join(
-            self.url,
-            'dists',
-            self.dist,
-            'Release'
-        )
+        url = posixpath.join(self.url, "dists", self.dist, "Release")
 
         release_content = _download(url)
 
         return ReleaseFile(release_content)
 
     @property
-    def packages(self, arch='amd64'):
+    def packages(self, arch="amd64"):
         """
         Returns all binary packages of this repository
 
@@ -246,7 +246,7 @@ class APTRepository:
 
         return packages
 
-    def get_binary_packages_by_component(self, component, arch='amd64'):
+    def get_binary_packages_by_component(self, component, arch="amd64"):
         """
         Returns all binary packages of this repository for a given component
 
@@ -255,19 +255,11 @@ class APTRepository:
         arch (str): the architecture to return packages for, default: 'amd64'
         """
         if component is None:
-            url = posixpath.join(
-                self.url,
-                self.dist,
-                'Packages')
+            url = posixpath.join(self.url, self.dist, "Packages")
         else:
             url = posixpath.join(
-                self.url,
-                'dists',
-                self.dist,
-                component,
-                'binary-' + arch,
-                'Packages'
-        )
+                self.url, "dists", self.dist, component, "binary-" + arch, "Packages"
+            )
 
         packages_file = _download_compressed(url)
 
@@ -323,6 +315,7 @@ class APTSources:
     # Arguments
     repositories (list): list of APTRepository objects
     """
+
     def __init__(self, repositories):
         self.__repositories = repositories
 

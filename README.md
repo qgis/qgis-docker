@@ -5,7 +5,7 @@ This repository automates the build of QGIS desktop and QGIS server Docker image
 - [QGIS Server](./server/README.md)
 - [QGIS Desktop](./desktop/README.md)
 
-**Warning**: 
+**Warning**:
 
-There are discussions on how to build these images and they are not considered stable. 
+There are discussions on how to build these images and they are not considered stable.
 They are considered as NOT production ready.
