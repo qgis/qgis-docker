@@ -20,7 +20,7 @@ if __name__ == "__main__":
     os = args.os
     dist = args.dist
 
-    if args.qgis == "dekstop":
+    if args.qgis == "desktop":
         package_name = "qgis"
     else:
         package_name = "qgis-server"

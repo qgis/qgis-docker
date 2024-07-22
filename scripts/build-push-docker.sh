@@ -45,7 +45,7 @@ for TAG in ${TAGS}; do
   ALL_TAGS="${ALL_TAGS} --tag qgis/${REPO}:${TAG}"
 done
 
-docker buildx build --push --platform linux/amd64,linux/arm64 \
+docker buildx build --push --platform linux/amd64 \
                --build-arg os=${OS} \
                --build-arg release=${OS_RELEASE} \
                --build-arg repo=${QGIS_PPA} \
