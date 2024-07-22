@@ -72,8 +72,6 @@ jobs:
         version: ['stable', 'ltr']
         platform:
           - os: ubuntu
-            release: focal
-          - os: ubuntu
             release: jammy
           - os: ubuntu
             release: noble
