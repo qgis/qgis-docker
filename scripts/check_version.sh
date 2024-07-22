@@ -8,7 +8,7 @@ if [[ ${VERSION_CHECK} == 'master' ]]; then
   exit 0
 fi
 
-if [[ ${VERSION_INSTALLED} =~ ^${VERSION_CHECK}\.[0-9]+ ]]; then
+if [[ ${VERSION_INSTALLED} =~ ^${VERSION_CHECK}$ ]]; then
   echo "version check ok: ${VERSION_INSTALLED}"
   exit 0
 fi
