@@ -1,6 +1,6 @@
 # QGIS Desktop standalone
 
-A simple QGIS desktop Docker image
+A simple QGIS desktop Docker image, pushed on [Docker Hub](https://hub.docker.com/r/qgis/qgis).
 
 **Warning**
 

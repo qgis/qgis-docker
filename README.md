@@ -1,7 +1,15 @@
 # QGIS Docker Images
 
-This repository automates the build of QGIS desktop and QGIS server Docker images. The respective docs are located here:
+This repository automates the build of QGIS desktop and QGIS server Docker images.
 
-- [QGIS Server](./server/README.md)
-- [QGIS Desktop](./desktop/README.md)
-- 
+## Desktop
+
+[![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis)](https://hub.docker.com/r/qgis/qgis)
+
+- [Documentation](./desktop/README.md)
+
+## Server
+
+[![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis-server)](https://hub.docker.com/r/qgis/qgis-server)
+
+- [Documentation](./server/README.md)
