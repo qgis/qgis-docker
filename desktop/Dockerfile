@@ -27,3 +27,5 @@ ARG qgis_ref
 
 RUN /opt/check_version.sh ${qgis_version}
 RUN /opt/qgis_test_setup.sh ${qgis_ref}
+
+ENV PYTHONPATH=/usr/share/qgis/python
