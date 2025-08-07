@@ -23,5 +23,5 @@ docker exec qgis bash -c "git config --global --add safe.directory /tests_direct
 docker exec qgis bash -c "cd /tests_directory && pre-commit run --all-files"
 docker exec qgis bash -c "cd /tests_directory && python3 -m coverage run -m unittest discover"
 docker exec qgis bash -c "cd /tests_directory && python3 -m coverage report"
-docker exec qgis bash -c "cd /tests_directory && python3 -m coverage report"
+docker exec qgis bash -c "cd /tests_directory && python3 -m coverage lcov --include "${PLUGIN_DIR}/*""
 ```
