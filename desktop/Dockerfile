@@ -4,10 +4,8 @@ ARG release=noble
 FROM ${os}:${release}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
-ARG os
 ARG release
 ARG repo
-ARG qgis_version=master
 
 RUN apt update && apt install -y gnupg wget software-properties-common && \
     wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
@@ -20,11 +18,12 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
       python3-pytest python3-mock xvfb qttools5-dev-tools pyqt5-dev-tools && \
     apt-get clean
 
-# Upstream script to run plugin tests (only for tags & master)
-RUN ([[ "$qgis_version" == "master" ]] && upstream_version="master" || { [[ "$qgis_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && UPSTREAM="final-${VERSION//./_}"; }) && \
-    wget -O /opt/qgis_setup.sh https://raw.githubusercontent.com/qgis/QGIS/${upstream_version}/.docker/qgis_resources/test_runner/qgis_setup.sh
-RUN chmod +x /opt/qgis_setup.sh
-
-# Test version
+# Test version and download plugin test scripts
 COPY scripts/check_version.sh /opt/check_version.sh
+COPY scripts/qgis_test_setup.sh /opt/qgis_test_setup.sh
+
+ARG qgis_version=master
+ARG qgis_ref
+
 RUN /opt/check_version.sh ${qgis_version}
+RUN /opt/qgis_test_setup.sh ${qgis_ref}

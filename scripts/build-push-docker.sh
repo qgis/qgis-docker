@@ -8,6 +8,7 @@ QGIS_VERSION=$3
 OS=$4
 OS_RELEASE=$5
 DEFAULT_OS_RELEASE=$6
+QGIS_REF=$7
 
 MAJOR_QGIS_VERSION=$(echo "${QGIS_VERSION}" | cut -d. -f1,2)
 
@@ -50,4 +51,5 @@ docker buildx build --push --platform linux/amd64 \
                --build-arg release=${OS_RELEASE} \
                --build-arg repo=${QGIS_PPA} \
                --build-arg qgis_version=${QGIS_VERSION} \
+               --build-arg qgis_ref=${QGIS_REF} \
                ${ALL_TAGS} -f ${QGIS_TYPE}/Dockerfile .

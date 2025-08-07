@@ -93,6 +93,19 @@ jobs:
           DOCKER_VERSION=$(echo "${DOCKER}" | jq ".${{ matrix.version }}")
           QGIS_VERSION=$(echo "${QGIS}" | jq ".${{ matrix.version }}")
 
+          QGIS_REF="NA"
+          TEST_URL="refs/heads"
+          if ! [[ "$QGIS_VERSION" == "master" || ]]; then
+            QGIS_REF=master
+          elif [[ "$QGIS_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            QGIS_REF="final-${QGIS_VERSION//./_}"
+            TEST_URL="refs/tags"
+          fi
+          if ! wget -q --spider https://api.github.com/repos/qgis/QGIS/git/${TEST_URL}/${QGIS_REF}; then
+            echo "Invalid git ref '${QGIS_REF}' for version '${QGIS_VERSION}'"
+            exit 1
+          fi
+
           echo "Existing ${{ matrix.version }} docker: ${DOCKER_VERSION}"
           echo "Available ${{ matrix.version }} QGIS: ${QGIS_VERSION}"
 
@@ -111,6 +124,7 @@ jobs:
 
           echo "will_update=${WILL_UPDATE}" >> $GITHUB_OUTPUT
           echo "qgis_version=${QGIS_VERSION//\"/}">> $GITHUB_OUTPUT
+          echo "qgis_ref=${QGIS_REF}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         if: ${{ steps.determine.outputs.will_update == 1 }}
@@ -136,4 +150,4 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        run: ./scripts/build-push-docker.sh ${{ matrix.qgis_type }} ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.platform.os }} ${{ matrix.platform.release }} ${DEFAULT_UBUNTU_RELEASE}
+        run: ./scripts/build-push-docker.sh ${{ matrix.qgis_type }} ${{ matrix.version }} ${{steps.determine.outputs.qgis_version}} ${{ matrix.platform.os }} ${{ matrix.platform.release }} ${DEFAULT_UBUNTU_RELEASE} ${{ steps.determine.outputs.qgis_ref }}

@@ -6,7 +6,7 @@ This repository automates the build of QGIS desktop and QGIS server Docker image
 
 [![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis)](https://hub.docker.com/r/qgis/qgis)
 
-- [Documentation](./desktop/README.md)
+- [Documentation](./desktop/README.md), including instructions to test QGIS plugins
 
 ## Server
 
