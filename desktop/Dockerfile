@@ -23,3 +23,5 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
 # Test version
 COPY scripts/check_version.sh /opt/check_version.sh
 RUN /opt/check_version.sh ${qgis_version}
+
+ENV PYTHONPATH=/usr/share/qgis/python
