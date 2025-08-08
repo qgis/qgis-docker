@@ -93,7 +93,7 @@ jobs:
           DOCKER_VERSION=$(echo "${DOCKER}" | jq ".${{ matrix.version }}")
           QGIS_VERSION=$(echo "${QGIS}" | jq ".${{ matrix.version }}")
 
-          QGIS_REF="NA"
+          QGIS_REF=".impossible_branch/"
           TEST_URL="refs/heads"
           if ! [[ "$QGIS_VERSION" == "master" || ]]; then
             QGIS_REF=master
