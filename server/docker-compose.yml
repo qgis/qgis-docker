@@ -49,7 +49,7 @@ services:
      - ./test/data:/io/data:ro
      - ./plugins:/io/plugins
      - ./fonts:/usr/share/fonts
-     # - ./svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg
+     - ./svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg
      # - ./conf/pg_service.conf:/etc/postgresql-common/pg_service.conf:ro
     restart: always
 
