@@ -37,3 +37,9 @@ Example:
 
 ```sh
 docker pull qgis/qgis-server:ltr
+``` 
+
+And to test if erverythings works...
+``` 
+http://localhost:8010/ogc/test_project?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities
+```
