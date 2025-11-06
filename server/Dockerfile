@@ -18,19 +18,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ARG ubuntu_dist=noble
+ARG os=ubuntu
+ARG release=noble
 
-FROM ubuntu:${ubuntu_dist}
+FROM ${os}:${release}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
-ARG ubuntu_dist
-ARG repo=ubuntu
+ARG os
+ARG release
+ARG repo
 ARG qgis_version
 
 RUN apt update && apt install -y gnupg wget software-properties-common && \
     wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
     chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
-    add-apt-repository "deb https://qgis.org/${repo} ${ubuntu_dist} main" && \
+    add-apt-repository "deb https://qgis.org/${repo} ${release} main" && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all
