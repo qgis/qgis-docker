@@ -25,7 +25,7 @@ The `latest` tag will switch to QGIS 4.0 once the next Ubuntu LTS becomes the de
 
 [![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis)](https://hub.docker.com/r/qgis/qgis)
 
-- [Documentation](./desktop/README.md)
+- [Documentation](./desktop/README.md), including instructions to test QGIS plugins
 
 ## Server
 
