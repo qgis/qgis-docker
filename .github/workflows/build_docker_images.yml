@@ -15,7 +15,9 @@ on:
   workflow_dispatch:
 
 env:
-  DEFAULT_UBUNTU_RELEASE: questing  # for the default dist, no suffix to tag
+  # for the default dist, no suffix to tag
+  # if modified, also update the Dockerfile!
+  DEFAULT_UBUNTU_RELEASE: questing  
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
