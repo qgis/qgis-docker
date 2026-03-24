@@ -37,6 +37,9 @@ jobs:
       - name: Run qgis_testrunner.sh unit tests
         run: bash tests/test_qgis_testrunner.sh
 
+      - name: Run server landing page config tests
+        run: bash tests/test_server_landing_page.sh
+
   build-nightly:
     needs: test
     runs-on: ubuntu-latest
@@ -70,6 +73,23 @@ jobs:
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+          docker rm -f qgis-server
+
+      - name: test server landing page
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
+          docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 \
+            -e QGIS_SERVER_LANDING_PAGE_PREFIX=/catalog \
+            -e QGIS_SERVER_LANDING_PAGE_PROJECTS_DIRECTORIES=/io/data \
+            --name qgis-server-landing qgis/qgis-server:nightly
+          sleep 5
+          # Verify the landing page nginx config was generated
+          docker exec qgis-server-landing test -f /etc/nginx/qgis.d/landing-page.conf
+          # Verify the landing page responds (not a 404)
+          HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8010/catalog/')
+          echo "Landing page HTTP status: ${HTTP_CODE}"
+          [ "$HTTP_CODE" -ne 404 ]
+          docker rm -f qgis-server-landing
 
       - name: test desktop scripts
         if: ${{ matrix.qgis_type == 'desktop' }}

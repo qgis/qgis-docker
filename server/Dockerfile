@@ -54,7 +54,8 @@ ENV DISPLAY :99
 ENV HOME /var/lib/qgis
 
 RUN mkdir $HOME && \
-    chmod 1777 $HOME
+    chmod 1777 $HOME && \
+    mkdir -p /etc/nginx/qgis.d
 WORKDIR $HOME
 
 EXPOSE 80/tcp 9993/tcp
