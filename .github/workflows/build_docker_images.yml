@@ -121,8 +121,6 @@ jobs:
         version: ['stable', 'ltr']
         platform:
           - os: ubuntu
-            release: jammy
-          - os: ubuntu
             release: noble
           - os: ubuntu
             release: questing
