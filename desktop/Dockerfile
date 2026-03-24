@@ -9,11 +9,10 @@ ARG release
 ARG repo
 ARG qgis_version=master
 
-RUN apt update && apt install -y gnupg wget software-properties-common && \
-    wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
-    chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
-    # run twice because of https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1041012
-    add-apt-repository "deb https://qgis.org/${repo} ${release} main" && \
+RUN apt update && apt install -y gnupg wget && \
+    mkdir -p /etc/apt/keyrings && \
+    wget -qO /etc/apt/keyrings/qgis-archive-keyring.gpg https://download.qgis.org/downloads/qgis-archive-keyring.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/qgis-archive-keyring.gpg] https://qgis.org/${repo} ${release} main" > /etc/apt/sources.list.d/qgis.list && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip qgis python3-qgis python3-qgis-common python3-venv \
       python3-pytest python3-mock xvfb && \
