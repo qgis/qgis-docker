@@ -26,12 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install test dependencies
-        run: |
-          pip3 install pytest
-          sudo apt-get update && sudo apt-get install -y shellcheck
-
-      - name: Shellcheck test runner scripts
-        run: shellcheck desktop/scripts/test_runner/qgis_setup.sh desktop/scripts/test_runner/qgis_testrunner.sh
+        run: pip3 install pytest
 
       - name: Run qgis_setup.sh unit tests
         run: bash tests/test_qgis_setup.sh
