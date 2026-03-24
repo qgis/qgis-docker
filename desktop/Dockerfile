@@ -1,5 +1,5 @@
 ARG os=ubuntu
-ARG release=noble
+ARG release=questing
 
 FROM ${os}:${release}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
