@@ -76,7 +76,7 @@ jobs:
           - os: ubuntu
             release: questing
           - os: debian
-            release: bookworm
+            release: trixie
 
     steps:
       - uses: actions/checkout@v4
