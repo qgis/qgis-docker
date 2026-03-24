@@ -73,6 +73,8 @@ jobs:
             release: jammy
           - os: ubuntu
             release: noble
+          - os: ubuntu
+            release: questing
           - os: debian
             release: bookworm
 

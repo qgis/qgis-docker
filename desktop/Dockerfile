@@ -16,7 +16,13 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
     add-apt-repository "deb https://qgis.org/${repo} ${release} main" && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip qgis python3-qgis python3-qgis-common python3-venv \
-      python3-pytest python3-mock xvfb qttools5-dev-tools pyqt5-dev-tools && \
+      python3-pytest python3-mock xvfb && \
+    # Install Qt5 or Qt6 tools depending on the QGIS version (4.x+ uses Qt6)
+    if dpkg -l python3-pyqt6 > /dev/null 2>&1; then \
+      apt-get install -y qt6-tools-dev-tools pyqt6-dev-tools; \
+    else \
+      apt-get install -y qttools5-dev-tools pyqt5-dev-tools; \
+    fi && \
     apt-get clean
 
 # Test version
