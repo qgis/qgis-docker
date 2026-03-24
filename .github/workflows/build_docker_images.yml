@@ -19,7 +19,26 @@ env:
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: unit tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install test dependencies
+        run: pip3 install pytest
+
+      - name: Run qgis_setup.sh unit tests
+        run: bash tests/test_qgis_setup.sh
+
+      - name: Run qgis_startup.py unit tests
+        run: pytest tests/test_qgis_startup.py -v
+
+      - name: Run qgis_testrunner.sh unit tests
+        run: bash tests/test_qgis_testrunner.sh
+
   build-nightly:
+    needs: test
     runs-on: ubuntu-latest
     name: build nightly
     strategy:
@@ -44,13 +63,25 @@ jobs:
         name: building nightly
         run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly --build-arg repo=ubuntu-nightly -f ${{ matrix.qgis_type }}/Dockerfile .
 
-      - name: test
+      - name: test server
         if: ${{ matrix.qgis_type == 'server' }}
         run: |
           docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 --name qgis-server qgis/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+
+      - name: test desktop scripts
+        if: ${{ matrix.qgis_type == 'desktop' }}
+        run: |
+          # Verify test runner scripts are installed and executable
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly which qgis_setup.sh
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly which qgis_testrunner.sh
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly test -f /usr/bin/qgis_startup.py
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly test -f /usr/bin/qgis_testrunner.py
+          # Run qgis_setup.sh and verify it creates config directories
+          docker run --rm -e QT_QPA_PLATFORM=offscreen qgis/${{ env.DOCKER_TAG }}:nightly \
+            bash -c 'qgis_setup.sh && test -d /root/.local/share/QGIS/QGIS3/profiles/default/QGIS && test -f /root/.local/share/QGIS/QGIS3/startup.py'
 
       - name: push
         if: ${{ github.event_name != 'pull_request' }}
