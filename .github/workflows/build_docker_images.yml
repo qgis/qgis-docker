@@ -167,7 +167,7 @@ jobs:
 
       - name: Set up QEMU
         if: ${{ steps.determine.outputs.will_update == 1 }}
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           image: tonistiigi/binfmt:latest
           platforms: arm64,arm
