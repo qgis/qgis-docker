@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     name: unit tests
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install test dependencies
         run: pip3 install pytest
