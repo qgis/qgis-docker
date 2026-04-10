@@ -128,6 +128,8 @@ jobs:
             release: questing
           - os: debian
             release: trixie
+          - os: debian
+            release: forky
 
     steps:
       - uses: actions/checkout@v6
