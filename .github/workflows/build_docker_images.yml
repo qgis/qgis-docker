@@ -17,7 +17,7 @@ on:
 env:
   # for the default dist, no suffix to tag
   # if modified, also update the Dockerfile!
-  DEFAULT_UBUNTU_RELEASE: questing  
+  DEFAULT_UBUNTU_RELEASE: resolute  
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
@@ -125,7 +125,7 @@ jobs:
           - os: ubuntu
             release: noble
           - os: ubuntu
-            release: questing
+            release: resolutue
           - os: debian
             release: trixie
           - os: debian
