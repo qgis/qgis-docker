@@ -58,5 +58,8 @@ RUN mkdir $HOME && \
     mkdir -p /etc/nginx/qgis.d
 WORKDIR $HOME
 
+RUN echo "* soft nofile 4096" >> /etc/security/limits.conf
+RUN echo "* hard nofile 65536" >> /etc/security/limits.conf
+
 EXPOSE 80/tcp 9993/tcp
 CMD /usr/local/bin/start-xvfb-nginx.sh
