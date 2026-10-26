@@ -4,7 +4,7 @@
 
 ## General information
 
-The Docker image is built using *Ubuntu 20.04 (focal), 22.04 (jammy) and 24.04 (noble)* and official QGIS DEBs from <https://qgis.org/>.
+The Docker image is built using *Ubuntu 26.04 (resolute)*, *Debian 13 (trixie)* and, for QGIS 3 LTR only, *Ubuntu 24.04 (noble)* and official QGIS DEBs from <https://qgis.org/>.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 ## Requisites
@@ -30,8 +30,12 @@ A sample Nginx configuration for using it as a *FastCGI* backend is also [provid
 
 Image name: `qgis/qgis-server`
 
-- **QGIS stable**: `stable` | `stable-ubuntu`
-- **QGIS LTR**: `ltr` | `ltr-ubuntu`
+- **QGIS stable**: `stable` | `stable-trixie`
+- **QGIS LTR**: `ltr` | `ltr-trixie` | `ltr-noble`
+- **QGIS version**: e.g. `4.2` | `4.2.3` | `4.2.3-trixie`
+- **QGIS nightly**: `nightly` | `latest`
+
+Tags without a distribution suffix are built on Ubuntu 26.04 (resolute).
 
 Example:
 
@@ -47,4 +51,5 @@ The provided [`compose.yaml`](compose.yaml) runs QGIS Server as a *FastCGI* back
 cd server
 docker compose up -d
 curl "http://localhost:8010/ogc/test_project?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
+curl "http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs"
 ```
