@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-o", "--os", help="The operating system", choices=["ubuntu", "debian"], default="ubuntu"
     )
-    parser.add_argument("-d", "--dist", help="The Ubuntu/Debian distribution", default="focal")
+    parser.add_argument("-d", "--dist", help="The Ubuntu/Debian distribution", default="resolute")
     args = parser.parse_args()
     os = args.os
     dist = args.dist
