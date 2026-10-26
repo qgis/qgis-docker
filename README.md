@@ -2,6 +2,9 @@
 
 This repository automates the build of QGIS desktop and QGIS server Docker images.
 
+Images are only built for `linux/amd64`, as the QGIS package repositories do not provide arm64 packages.
+On arm64 hosts (e.g. Apple Silicon), they can be run under emulation with `--platform linux/amd64`.
+
 ## QGIS 4 (Qt6)
 
 QGIS 4 images are available for distributions that ship Qt6: **Ubuntu Resolute (26.04 LTS)** and **Debian Trixie**.
