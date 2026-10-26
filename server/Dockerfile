@@ -53,9 +53,10 @@ ENV QGIS_AUTH_DB_DIR_PATH /tmp/
 ENV DISPLAY :99
 ENV HOME /var/lib/qgis
 
-RUN mkdir $HOME && \
-    chmod 1777 $HOME && \
-    mkdir -p /etc/nginx/qgis.d
+# Writable by anyone, so that the container can also run as an arbitrary non-root user
+RUN mkdir $HOME /tmp/.X11-unix && \
+    mkdir -p /etc/nginx/qgis.d && \
+    chmod 1777 $HOME /tmp/.X11-unix /etc/nginx/qgis.d /var/lib/nginx /run
 WORKDIR $HOME
 
 EXPOSE 80/tcp 9993/tcp

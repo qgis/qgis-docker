@@ -105,6 +105,18 @@ jobs:
           [ "$HTTP_CODE" -ne 404 ]
           docker rm -f qgis-server-landing
 
+      - name: test server as non-root user
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
+          docker run -d --user 12345 -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 \
+            -e QGIS_SERVER_LANDING_PAGE_PREFIX=/catalog \
+            --name qgis-server-nonroot qgis/qgis-server:nightly
+          sleep 5
+          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+          curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
+          docker exec qgis-server-nonroot test -f /etc/nginx/qgis.d/landing-page.conf
+          docker rm -f qgis-server-nonroot
+
       - name: test desktop scripts
         if: ${{ matrix.qgis_type == 'desktop' }}
         run: |
