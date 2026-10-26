@@ -39,6 +39,7 @@ Projects are mounted in `/io/data`, in any folder structure, and served by Nginx
 | `/ogcapi/?MAP=<project>` | any project file (OGC API)               |
 
 For instance, `/ogc/team/alice/roads?SERVICE=WMS&REQUEST=GetCapabilities` serves `/io/data/team/alice/roads/roads.qgs`.
+The OGC API of a project is served under its `/ogc/` URL, e.g. `/ogc/team/alice/roads/ogcapi/collections` (`/wfs3` before QGIS 4.2), so `ogcapi` and `wfs3` cannot be used as folder names in the project path.
 For other routes, mount a custom Nginx configuration over `/etc/nginx/nginx.conf`.
 
 ## Behind a reverse proxy

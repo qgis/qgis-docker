@@ -87,6 +87,9 @@ jobs:
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
           curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
+          # OGC API links of /ogc/ projects keep the route, without the project file
+          COLLECTIONS=$(curl -sf 'http://localhost:8010/ogc/test_project/ogcapi/collections.json')
+          [[ ${COLLECTIONS} == *'"http://localhost:8010/ogc/test_project/ogcapi/collections'* && ${COLLECTIONS} != *map=* ]]
           # links follow the reverse proxy headers, including the path prefix
           PROXY_HEADERS=(-H 'X-Forwarded-Host: example.com' -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Prefix: /qgis/')
           curl -s "${PROXY_HEADERS[@]}" 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -q '"https://example.com/qgis/ogc/test_project?'
@@ -101,6 +104,7 @@ jobs:
           sleep 5
           for PROJECT in data/test_project data/test_project/ data/test_project/test_project.qgs; do
             curl -sf "http://localhost:8010/ogc/${PROJECT}?service=WMS&request=GetCapabilities" | grep -q '<WMS_Capabilities'
+            curl -sf "http://localhost:8010/ogc/${PROJECT%/}/ogcapi/collections.json" | grep -q '"collections"'
           done
           docker rm -f qgis-server-paths
 
