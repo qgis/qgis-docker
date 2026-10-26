@@ -86,7 +86,7 @@ generate_landing_page_conf() {
         if [[ "$PREFIX" =~ ^/[a-zA-Z0-9/_-]+$ ]]; then
             cat > "${QGIS_D}/landing-page.conf" <<LANDING_CONF
 location ${PREFIX} {
-    fastcgi_pass  localhost:9993;
+    fastcgi_pass  127.0.0.1:9993;
     fastcgi_param SCRIPT_FILENAME /usr/lib/cgi-bin/qgis_mapserv.fcgi;
     fastcgi_param QUERY_STRING    \$query_string;
     fastcgi_param HTTPS           \$qgis_ssl;
@@ -130,7 +130,7 @@ generate_landing_page_conf
 assert_file_exists "landing-page.conf created" "${QGIS_D}/landing-page.conf"
 CONF=$(cat "${QGIS_D}/landing-page.conf")
 assert_contains "contains location /catalog" "$CONF" "location /catalog {"
-assert_contains "contains fastcgi_pass" "$CONF" "fastcgi_pass  localhost:9993"
+assert_contains "contains fastcgi_pass" "$CONF" "fastcgi_pass  127.0.0.1:9993"
 assert_contains "contains SCRIPT_FILENAME" "$CONF" "SCRIPT_FILENAME /usr/lib/cgi-bin/qgis_mapserv.fcgi"
 assert_contains "contains include fastcgi_params" "$CONF" "include fastcgi_params"
 echo ""

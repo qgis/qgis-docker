@@ -53,7 +53,7 @@ if [ -n "${QGIS_SERVER_LANDING_PAGE_PREFIX:-}" ]; then
     if [[ "$PREFIX" =~ ^/[a-zA-Z0-9/_-]+$ ]]; then
         cat > /etc/nginx/qgis.d/landing-page.conf <<LANDING_CONF
 location ${PREFIX} {
-    fastcgi_pass  localhost:9993;
+    fastcgi_pass  127.0.0.1:9993;
     fastcgi_param SCRIPT_FILENAME /usr/lib/cgi-bin/qgis_mapserv.fcgi;
     fastcgi_param QUERY_STRING    \$query_string;
     fastcgi_param HTTPS           \$qgis_ssl;
