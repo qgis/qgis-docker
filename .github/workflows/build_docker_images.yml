@@ -115,7 +115,7 @@ jobs:
         run: |
           docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 \
             -e QGIS_SERVER_LANDING_PAGE_PREFIX=/catalog \
-            -e QGIS_SERVER_LANDING_PAGE_PROJECTS_DIRECTORIES=/io/data \
+            -e QGIS_SERVER_LANDING_PAGE_PROJECTS_DIRECTORIES=/io/data/test_project \
             --name qgis-server-landing qgis/qgis-server:nightly
           sleep 5
           # Verify the landing page nginx config was generated
@@ -124,6 +124,10 @@ jobs:
           HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8010/catalog/')
           echo "Landing page HTTP status: ${HTTP_CODE}"
           [ "$HTTP_CODE" -ne 404 ]
+          # Verify the test project is listed and the web app is served
+          curl -sf 'http://localhost:8010/catalog/index.json' | grep -Eq '"projects_count": ?1'
+          APP_JS=$(curl -sf 'http://localhost:8010/catalog/index.html' | grep -o 'js/app\.[0-9a-f]*\.js')
+          curl -sf -o /dev/null -w '%{content_type}' "http://localhost:8010/catalog/${APP_JS}" | grep -q javascript
           docker rm -f qgis-server-landing
 
       - name: test server as non-root user

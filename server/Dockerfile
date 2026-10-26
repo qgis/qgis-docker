@@ -21,7 +21,7 @@
 ARG os=ubuntu
 ARG release=resolute
 
-FROM ${os}:${release}
+FROM ${os}:${release} AS qgis-server
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
 ARG os
@@ -36,6 +36,20 @@ RUN apt update && apt install -y gnupg wget && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all
+
+# QGIS 3 packages ship the sources of the landing page web app without building it,
+# leaving the landing page blank: build it unless the packages already provide it
+FROM --platform=$BUILDPLATFORM node:22-slim AS landingpage
+COPY --from=qgis-server /usr/share/qgis/resources/server /server
+RUN mkdir /dist && \
+    if [ -d /server/src/landingpage ] && [ ! -d /server/api/ogc/static/landingpage ]; then \
+      cd /server/src/landingpage && \
+      yarn install --frozen-lockfile && \
+      yarn build --dest /dist/landingpage; \
+    fi
+
+FROM qgis-server
+COPY --from=landingpage /dist/ /usr/share/qgis/resources/server/api/ogc/static/
 
 # This part is kept to allow the container to be used in
 # standalone mode, without composing it with 'nginx'
