@@ -1,4 +1,4 @@
-name: Auto build QGIS server Docker images
+name: Auto build QGIS Docker images
 
 on:
   schedule:
@@ -15,11 +15,35 @@ on:
   workflow_dispatch:
 
 env:
-  DEFAULT_UBUNTU_RELEASE: noble  # for the default dist, no suffix to tag
+  # for the default dist, no suffix to tag
+  # if modified, also update the Dockerfile!
+  DEFAULT_UBUNTU_RELEASE: resolute  
   DOCKER_CLI_EXPERIMENTAL: enabled
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: unit tests
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install test dependencies
+        run: pip3 install pytest
+
+      - name: Run qgis_setup.sh unit tests
+        run: bash tests/test_qgis_setup.sh
+
+      - name: Run qgis_startup.py unit tests
+        run: pytest tests/test_qgis_startup.py -v
+
+      - name: Run qgis_testrunner.sh unit tests
+        run: bash tests/test_qgis_testrunner.sh
+
+      - name: Run server landing page config tests
+        run: bash tests/test_server_landing_page.sh
+
   build-nightly:
+    needs: test
     runs-on: ubuntu-latest
     name: build nightly
     strategy:
@@ -28,10 +52,10 @@ jobs:
         qgis_type: [ 'desktop', 'server' ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -44,13 +68,54 @@ jobs:
         name: building nightly
         run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly --build-arg repo=ubuntu-nightly -f ${{ matrix.qgis_type }}/Dockerfile .
 
-      - name: test
+      - name: label with QGIS version
+        run: |
+          IMAGE=qgis/${{ env.DOCKER_TAG }}:nightly
+          # the package has the same name as the image (qgis / qgis-server)
+          VERSION=$(docker run --rm ${IMAGE} dpkg-query -W -f='${Version}' ${{ env.DOCKER_TAG }})
+          # 1:4.3.0+git20261022+149067ad0b9+43questing -> 4.3.0+git20261022+149067ad0b9
+          VERSION=${VERSION#*:}
+          VERSION=${VERSION%+*}
+          printf 'FROM %s\nLABEL org.opencontainers.image.version="%s"\n' ${IMAGE} ${VERSION} | docker build -t ${IMAGE} -
+          echo "QGIS ${VERSION} (https://github.com/qgis/QGIS/commit/${VERSION##*+})" >> $GITHUB_STEP_SUMMARY
+
+      - name: test server
         if: ${{ matrix.qgis_type == 'server' }}
         run: |
           docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 --name qgis-server qgis/qgis-server:nightly
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+          curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
+          docker rm -f qgis-server
+
+      - name: test server landing page
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
+          docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 \
+            -e QGIS_SERVER_LANDING_PAGE_PREFIX=/catalog \
+            -e QGIS_SERVER_LANDING_PAGE_PROJECTS_DIRECTORIES=/io/data \
+            --name qgis-server-landing qgis/qgis-server:nightly
+          sleep 5
+          # Verify the landing page nginx config was generated
+          docker exec qgis-server-landing test -f /etc/nginx/qgis.d/landing-page.conf
+          # Verify the landing page responds (not a 404)
+          HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8010/catalog/')
+          echo "Landing page HTTP status: ${HTTP_CODE}"
+          [ "$HTTP_CODE" -ne 404 ]
+          docker rm -f qgis-server-landing
+
+      - name: test desktop scripts
+        if: ${{ matrix.qgis_type == 'desktop' }}
+        run: |
+          # Verify test runner scripts are installed and executable
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly which qgis_setup.sh
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly which qgis_testrunner.sh
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly test -f /usr/bin/qgis_startup.py
+          docker run --rm qgis/${{ env.DOCKER_TAG }}:nightly test -f /usr/bin/qgis_testrunner.py
+          # Run qgis_setup.sh and verify it creates config directories
+          docker run --rm -e QT_QPA_PLATFORM=offscreen qgis/${{ env.DOCKER_TAG }}:nightly \
+            bash -c 'qgis_setup.sh && test -d /root/.local/share/QGIS/QGIS3/profiles/default/QGIS && test -f /root/.local/share/QGIS/QGIS3/startup.py'
 
       - name: push
         if: ${{ github.event_name != 'pull_request' }}
@@ -70,14 +135,16 @@ jobs:
         version: ['stable', 'ltr']
         platform:
           - os: ubuntu
-            release: jammy
-          - os: ubuntu
             release: noble
+          - os: ubuntu
+            release: resolute
           - os: debian
-            release: bookworm
+            release: trixie
+          # - os: debian
+          #   release: forky
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - id: python_deps
         run: pip3 install packaging
@@ -114,18 +181,18 @@ jobs:
 
       - name: Set up QEMU
         if: ${{ steps.determine.outputs.will_update == 1 }}
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           image: tonistiigi/binfmt:latest
           platforms: arm64,arm
 
       - name: Set up Docker Buildx
         if: ${{ steps.determine.outputs.will_update == 1 }}
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to Docker Hub
         if: ${{ steps.determine.outputs.will_update == 1 }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}

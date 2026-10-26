@@ -18,19 +18,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ARG ubuntu_dist=noble
+ARG os=ubuntu
+ARG release=resolute
 
-FROM ubuntu:${ubuntu_dist}
+FROM ${os}:${release}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
-ARG ubuntu_dist
-ARG repo=ubuntu
+ARG os
+ARG release
+ARG repo
 ARG qgis_version
 
-RUN apt update && apt install -y gnupg wget software-properties-common && \
-    wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
-    chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
-    add-apt-repository "deb https://qgis.org/${repo} ${ubuntu_dist} main" && \
+RUN apt update && apt install -y gnupg wget && \
+    mkdir -p /etc/apt/keyrings && \
+    wget -qO /etc/apt/keyrings/qgis-archive-keyring.gpg https://download.qgis.org/downloads/qgis-archive-keyring.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/qgis-archive-keyring.gpg] https://qgis.org/${repo} ${release} main" > /etc/apt/sources.list.d/qgis.list && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all
@@ -48,12 +50,12 @@ ENV QGIS_SERVER_PARALLEL_RENDERING true
 ENV QGIS_SERVER_MAX_THREADS 2
 ENV QGIS_AUTH_DB_DIR_PATH /tmp/
 
-ENV QT_GRAPHICSSYSTEM raster
 ENV DISPLAY :99
 ENV HOME /var/lib/qgis
 
 RUN mkdir $HOME && \
-    chmod 1777 $HOME
+    chmod 1777 $HOME && \
+    mkdir -p /etc/nginx/qgis.d
 WORKDIR $HOME
 
 EXPOSE 80/tcp 9993/tcp
