@@ -89,6 +89,17 @@ jobs:
           curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
           docker rm -f qgis-server
 
+      - name: test server project paths
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
+          # mount the parent folder to get a nested project: /io/data/data/test_project/test_project.qgs
+          docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test:/io/data -p 8010:80 --name qgis-server-paths qgis/qgis-server:nightly
+          sleep 5
+          for PROJECT in data/test_project data/test_project/ data/test_project/test_project.qgs; do
+            curl -sf "http://localhost:8010/ogc/${PROJECT}?service=WMS&request=GetCapabilities" | grep -q '<WMS_Capabilities'
+          done
+          docker rm -f qgis-server-paths
+
       - name: test server landing page
         if: ${{ matrix.qgis_type == 'server' }}
         run: |

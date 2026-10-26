@@ -26,6 +26,21 @@ Containers are not tested on hosts running OSes other than Linux.
 This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided [`compose.yaml`](compose.yaml) does).
 A sample Nginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
 
+## Projects
+
+Projects are mounted in `/io/data`, in any folder structure, and served by Nginx at:
+
+| URL                      | Project                                  |
+|--------------------------|------------------------------------------|
+| `/ogc/<name>`            | `/io/data/<name>/<name>.qgs`             |
+| `/ogc/<path>/<name>`     | `/io/data/<path>/<name>/<name>.qgs`      |
+| `/ogc/<path>/<file>.qgs` | `/io/data/<path>/<file>.qgs` (or `.qgz`) |
+| `/ows/?MAP=<project>`    | any project file                         |
+| `/ogcapi/?MAP=<project>` | any project file (OGC API)               |
+
+For instance, `/ogc/team/alice/roads?SERVICE=WMS&REQUEST=GetCapabilities` serves `/io/data/team/alice/roads/roads.qgs`.
+For other routes, mount a custom Nginx configuration over `/etc/nginx/nginx.conf`.
+
 ## Available tags
 
 Image name: `qgis/qgis-server`
