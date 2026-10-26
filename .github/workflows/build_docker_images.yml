@@ -125,7 +125,7 @@ jobs:
           - os: ubuntu
             release: noble
           - os: ubuntu
-            release: resolutue
+            release: resolute
           - os: debian
             release: trixie
           - os: debian
