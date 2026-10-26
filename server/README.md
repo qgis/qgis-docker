@@ -42,6 +42,17 @@ For instance, `/ogc/team/alice/roads?SERVICE=WMS&REQUEST=GetCapabilities` serves
 The OGC API of a project is served under its `/ogc/` URL, e.g. `/ogc/team/alice/roads/ogcapi/collections` (`/wfs3` before QGIS 4.2), so `ogcapi` and `wfs3` cannot be used as folder names in the project path.
 For other routes, mount a custom Nginx configuration over `/etc/nginx/nginx.conf`.
 
+## Cross-origin requests (CORS)
+
+The embedded Nginx does not send CORS headers by default, as a reverse proxy in front of the container may already handle them.
+To let web clients on other origins query the server (e.g. `GetFeatureInfo` from a web map), set `NGINX_CORS_ALLOW_ORIGIN` to `*` or to a single origin:
+
+```sh
+docker run -e NGINX_CORS_ALLOW_ORIGIN=https://map.example.com -v $(pwd)/test/data:/io/data -p 8010:80 qgis/qgis-server:ltr
+```
+
+Preflight (`OPTIONS`) requests are then answered by Nginx directly.
+
 ## Behind a reverse proxy
 
 The URLs in the responses (`GetCapabilities`, OGC API links) are built from the request.
