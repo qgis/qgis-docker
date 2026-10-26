@@ -91,6 +91,8 @@ jobs:
           PROXY_HEADERS=(-H 'X-Forwarded-Host: example.com' -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Prefix: /qgis/')
           curl -s "${PROXY_HEADERS[@]}" 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -q '"https://example.com/qgis/ogc/test_project?'
           curl -s "${PROXY_HEADERS[@]}" 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"https://example.com:8010/qgis/ogcapi/collections'
+          # CORS is disabled by default
+          [ -z "$(curl -s -D - -o /dev/null 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -i '^access-control-allow-origin')" ]
           docker rm -f qgis-server
 
       - name: test server project paths
@@ -131,6 +133,18 @@ jobs:
           curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
           docker exec qgis-server-nonroot test -f /etc/nginx/qgis.d/landing-page.conf
           docker rm -f qgis-server-nonroot
+
+      - name: test server CORS
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
+          docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 \
+            -e NGINX_CORS_ALLOW_ORIGIN=https://example.com \
+            --name qgis-server-cors qgis/qgis-server:nightly
+          sleep 5
+          curl -s -D - -o /dev/null 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -qi '^access-control-allow-origin: https://example.com'
+          # Preflight requests are answered by Nginx
+          [ "$(curl -s -o /dev/null -w '%{http_code}' -X OPTIONS 'http://localhost:8010/ogc/test_project')" -eq 204 ]
+          docker rm -f qgis-server-cors
 
       - name: test desktop scripts
         if: ${{ matrix.qgis_type == 'desktop' }}

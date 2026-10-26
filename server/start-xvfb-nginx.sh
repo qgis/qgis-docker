@@ -68,6 +68,25 @@ LANDING_CONF
         echo "WARNING: Invalid QGIS_SERVER_LANDING_PAGE_PREFIX '${PREFIX}'. Must contain only alphanumeric characters, hyphens, underscores, and forward slashes."
     fi
 fi
+# Generate CORS nginx config if NGINX_CORS_ALLOW_ORIGIN is set (disabled by default)
+if [ -n "${NGINX_CORS_ALLOW_ORIGIN:-}" ]; then
+    # Validate origin to prevent config injection
+    ORIGIN_REGEX='^(\*|https?://[a-zA-Z0-9.-]+(:[0-9]+)?)$'
+    if [[ "$NGINX_CORS_ALLOW_ORIGIN" =~ $ORIGIN_REGEX ]]; then
+        cat > /etc/nginx/qgis.d/cors.conf <<CORS_CONF
+add_header Access-Control-Allow-Origin "${NGINX_CORS_ALLOW_ORIGIN}" always;
+add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+add_header Access-Control-Allow-Headers \$http_access_control_request_headers always;
+# QGIS Server does not handle preflight requests
+if (\$request_method = OPTIONS) {
+    return 204;
+}
+CORS_CONF
+        echo "CORS nginx config generated for origin: ${NGINX_CORS_ALLOW_ORIGIN}"
+    else
+        echo "WARNING: Invalid NGINX_CORS_ALLOW_ORIGIN '${NGINX_CORS_ALLOW_ORIGIN}'. Must be '*' or an origin such as 'https://example.com'."
+    fi
+fi
 /usr/bin/Xvfb :99 -ac -screen 0 1280x1024x16 +extension GLX +render -noreset >/dev/null &
 XVFB_PID=$(waitfor /usr/bin/Xvfb)
 # Do not start NGINX if environment variable '$SKIP_NGINX' is set but not '0' or 'false'

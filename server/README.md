@@ -41,6 +41,17 @@ Projects are mounted in `/io/data`, in any folder structure, and served by Nginx
 For instance, `/ogc/team/alice/roads?SERVICE=WMS&REQUEST=GetCapabilities` serves `/io/data/team/alice/roads/roads.qgs`.
 For other routes, mount a custom Nginx configuration over `/etc/nginx/nginx.conf`.
 
+## Cross-origin requests (CORS)
+
+The embedded Nginx does not send CORS headers by default, as a reverse proxy in front of the container may already handle them.
+To let web clients on other origins query the server (e.g. `GetFeatureInfo` from a web map), set `NGINX_CORS_ALLOW_ORIGIN` to `*` or to a single origin:
+
+```sh
+docker run -e NGINX_CORS_ALLOW_ORIGIN=https://map.example.com -v $(pwd)/test/data:/io/data -p 8010:80 qgis/qgis-server:ltr
+```
+
+Preflight (`OPTIONS`) requests are then answered by Nginx directly.
+
 ## Behind a reverse proxy
 
 The URLs in the responses (`GetCapabilities`, OGC API links) are built from the request.
