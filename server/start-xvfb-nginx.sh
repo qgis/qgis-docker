@@ -76,6 +76,9 @@ if [ -z "$SKIP_NGINX" ] || [ "$SKIP_NGINX" == "false" ] || [ "$SKIP_NGINX" == "0
     NGINX_PID=$(waitfor /usr/sbin/nginx)
 fi
 # To avoid issues with GeoPackages when scaling out QGIS should not run as root
-spawn-fcgi -n -u ${QGIS_USER:-www-data} -g ${QGIS_USER:-www-data} -d ${HOME:-/var/lib/qgis} -P /run/qgis.pid -p 9993 -- /usr/lib/cgi-bin/qgis_mapserv.fcgi &
-QGIS_PID=$(waitfor qgis_mapserv.fcgi)
+# spawn-fcgi cannot fork several processes in the foreground (-n), so multiwatch forks
+# $QGIS_SERVER_PROCESSES processes on the same socket and restarts them when they die
+spawn-fcgi -n -u ${QGIS_USER:-www-data} -g ${QGIS_USER:-www-data} -d ${HOME:-/var/lib/qgis} -P /run/qgis.pid -p 9993 -- \
+    /usr/bin/multiwatch -f ${QGIS_SERVER_PROCESSES:-1} -- /usr/lib/cgi-bin/qgis_mapserv.fcgi &
+QGIS_PID=$!
 wait $QGIS_PID

@@ -26,6 +26,18 @@ Containers are not tested on hosts running OSes other than Linux.
 This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided [`compose.yaml`](compose.yaml) does).
 A sample Nginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
 
+## Multiple QGIS Server processes
+
+Each QGIS Server process handles one request at a time.
+Set `QGIS_SERVER_PROCESSES` to run several of them on the FastCGI port (default `1`):
+
+```sh
+docker run -e QGIS_SERVER_PROCESSES=4 -v $(pwd)/test/data:/io/data -p 8010:80 qgis/qgis-server:ltr
+```
+
+Processes are supervised by [multiwatch](https://manpages.debian.org/multiwatch) and restarted if they crash.
+Each process loads its own copy of the projects, so memory usage grows accordingly.
+
 ## Available tags
 
 Image name: `qgis/qgis-server`

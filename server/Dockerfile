@@ -34,7 +34,7 @@ RUN apt update && apt install -y gnupg wget && \
     wget -qO /etc/apt/keyrings/qgis-archive-keyring.gpg https://download.qgis.org/downloads/qgis-archive-keyring.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/qgis-archive-keyring.gpg] https://qgis.org/${repo} ${release} main" > /etc/apt/sources.list.d/qgis.list && \
     apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
+    DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi multiwatch qgis-server python3-qgis && \
     apt clean all
 
 # This part is kept to allow the container to be used in

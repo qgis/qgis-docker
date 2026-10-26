@@ -89,6 +89,20 @@ jobs:
           curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
           docker rm -f qgis-server
 
+      - name: test server with multiple processes
+        if: ${{ matrix.qgis_type == 'server' }}
+        run: |
+          docker run -d -v $(pwd)/${{ matrix.qgis_type }}/test/data:/io/data -p 8010:80 \
+            -e QGIS_SERVER_PROCESSES=3 --name qgis-server-processes qgis/qgis-server:nightly
+          sleep 5
+          [ $(docker exec qgis-server-processes pidof qgis_mapserv.fcgi | wc -w) -eq 3 ]
+          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+          # a process that dies is restarted
+          docker exec qgis-server-processes sh -c 'kill -9 $(pidof -s qgis_mapserv.fcgi)'
+          sleep 5
+          [ $(docker exec qgis-server-processes pidof qgis_mapserv.fcgi | wc -w) -eq 3 ]
+          docker rm -f qgis-server-processes
+
       - name: test server landing page
         if: ${{ matrix.qgis_type == 'server' }}
         run: |
