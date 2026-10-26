@@ -53,3 +53,12 @@ docker compose up -d
 curl "http://localhost:8010/ogc/test_project?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
 curl "http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs"
 ```
+
+## Running as a non-root user
+
+By default the container starts as `root`, while Nginx workers and QGIS Server run as `www-data`.
+It can also run entirely as an arbitrary non-root user, as long as it can read the mounted volumes:
+
+```sh
+docker run --user 1000 -v $(pwd)/test/data:/io/data -p 8010:80 qgis/qgis-server:ltr
+```

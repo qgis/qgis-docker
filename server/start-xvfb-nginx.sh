@@ -72,7 +72,7 @@ XVFB_PID=$(waitfor /usr/bin/Xvfb)
 # Do not start NGINX if environment variable '$SKIP_NGINX' is set but not '0' or 'false'
 # this may be useful in production where an external reverse proxy is used
 if [ -z "$SKIP_NGINX" ] || [ "$SKIP_NGINX" == "false" ] || [ "$SKIP_NGINX" == "0" ]; then
-    nginx
+    nginx -e stderr
     NGINX_PID=$(waitfor /usr/sbin/nginx)
 fi
 # To avoid issues with GeoPackages when scaling out QGIS should not run as root
