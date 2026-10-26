@@ -24,6 +24,10 @@ RUN apt update && apt install -y gnupg wget && \
     fi && \
     apt-get clean
 
+# GDAL (Geo)Parquet and (Geo)Arrow drivers
+COPY scripts/install_gdal_arrow_plugins.sh /opt/install_gdal_arrow_plugins.sh
+RUN /opt/install_gdal_arrow_plugins.sh
+
 # Test version
 COPY scripts/check_version.sh /opt/check_version.sh
 RUN /opt/check_version.sh ${qgis_version}

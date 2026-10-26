@@ -37,6 +37,10 @@ RUN apt update && apt install -y gnupg wget && \
     DEBIAN_FRONTEND=noninteractive apt install -y xvfb nginx-core spawn-fcgi qgis-server python3-qgis && \
     apt clean all
 
+# GDAL (Geo)Parquet and (Geo)Arrow drivers
+COPY scripts/install_gdal_arrow_plugins.sh /opt/install_gdal_arrow_plugins.sh
+RUN /opt/install_gdal_arrow_plugins.sh
+
 # This part is kept to allow the container to be used in
 # standalone mode, without composing it with 'nginx'
 ADD server/conf/qgis-server-nginx.conf /etc/nginx/nginx.conf
