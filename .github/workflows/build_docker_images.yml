@@ -68,6 +68,17 @@ jobs:
         name: building nightly
         run: docker build -t qgis/${{ env.DOCKER_TAG }}:nightly --build-arg repo=ubuntu-nightly -f ${{ matrix.qgis_type }}/Dockerfile .
 
+      - name: label with QGIS version
+        run: |
+          IMAGE=qgis/${{ env.DOCKER_TAG }}:nightly
+          # the package has the same name as the image (qgis / qgis-server)
+          VERSION=$(docker run --rm ${IMAGE} dpkg-query -W -f='${Version}' ${{ env.DOCKER_TAG }})
+          # 1:4.3.0+git20261022+149067ad0b9+43questing -> 4.3.0+git20261022+149067ad0b9
+          VERSION=${VERSION#*:}
+          VERSION=${VERSION%+*}
+          printf 'FROM %s\nLABEL org.opencontainers.image.version="%s"\n' ${IMAGE} ${VERSION} | docker build -t ${IMAGE} -
+          echo "QGIS ${VERSION} (https://github.com/qgis/QGIS/commit/${VERSION##*+})" >> $GITHUB_STEP_SUMMARY
+
       - name: test server
         if: ${{ matrix.qgis_type == 'server' }}
         run: |
