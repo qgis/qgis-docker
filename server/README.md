@@ -106,3 +106,20 @@ It can also run entirely as an arbitrary non-root user, as long as it can read t
 ```sh
 docker run --user 1000 -v $(pwd)/test/data:/io/data -p 8010:80 qgis/qgis-server:ltr
 ```
+
+## Landing page
+
+The [QGIS Server landing page](https://docs.qgis.org/latest/en/docs/server_manual/services/landingpage.html) lists the projects found in `QGIS_SERVER_LANDING_PAGE_PROJECTS_DIRECTORIES` with a web map viewer.
+The embedded Nginx serves it at `QGIS_SERVER_LANDING_PAGE_PREFIX`:
+
+```sh
+docker run -d -p 8010:80 -v $(pwd)/test/data:/io/data:ro \
+  -e QGIS_SERVER_LANDING_PAGE_PREFIX=/catalog \
+  -e QGIS_SERVER_LANDING_PAGE_PROJECTS_DIRECTORIES=/io/data/test_project \
+  qgis/qgis-server:ltr
+```
+
+Then open <http://localhost:8010/catalog/>.
+
+- Directories are not searched recursively: list each directory containing projects, separated by `||`.
+- With an external Nginx, uncomment the landing page location in the [sample configuration](conf/nginx-fcgi-sample.conf).
