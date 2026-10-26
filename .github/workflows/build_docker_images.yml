@@ -86,6 +86,7 @@ jobs:
           docker exec -i qgis-server dpkg -l qgis-server
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
+          curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
           docker rm -f qgis-server
 
       - name: test server landing page
