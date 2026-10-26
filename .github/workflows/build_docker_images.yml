@@ -1,4 +1,4 @@
-name: Auto build QGIS server Docker images
+name: Auto build QGIS Docker images
 
 on:
   schedule:
@@ -128,8 +128,8 @@ jobs:
             release: questing
           - os: debian
             release: trixie
-          - os: debian
-            release: forky
+          # - os: debian
+          #   release: forky
 
     steps:
       - uses: actions/checkout@v6
