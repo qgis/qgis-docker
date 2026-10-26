@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-version: '2'
 services:
   nginx:
     image: "nginx"
@@ -47,7 +46,7 @@ services:
      # Data should be mount RO when working
      # with GeoPackages and more than one QGIS container
      - ./test/data:/io/data:ro
-     # Mounts for custom plugins, fonts etc.
+     # Optional mounts for custom plugins, fonts, SVGs and PG services
      # - ./plugins:/io/plugins
      # - ./fonts:/usr/share/fonts
      # - ./svg:/var/lib/qgis/.local/share/QGIS/QGIS3/profiles/default/svg

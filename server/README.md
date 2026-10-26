@@ -23,7 +23,7 @@ Containers are not tested on hosts running OSes other than Linux.
 
 ## Services provided
 
-This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided `docker-compose.yml` does).
+This Docker container exposes HTTP on port `80` via Nginx and a direct FastCGI on port `9993` that can be used directly by an external HTTP proxy (like the provided [`compose.yaml`](compose.yaml) does).
 A sample Nginx configuration for using it as a *FastCGI* backend is also [provided](conf/nginx-fcgi-sample.conf).
 
 ## Available tags
@@ -37,9 +37,14 @@ Example:
 
 ```sh
 docker pull qgis/qgis-server:ltr
-``` 
+```
 
-And to test if erverythings works...
-``` 
-http://localhost:8010/ogc/test_project?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities
+## Docker Compose
+
+The provided [`compose.yaml`](compose.yaml) runs QGIS Server as a *FastCGI* backend behind a separate Nginx container, serving the test project:
+
+```sh
+cd server
+docker compose up -d
+curl "http://localhost:8010/ogc/test_project?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
 ```
