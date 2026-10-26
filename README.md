@@ -2,24 +2,23 @@
 
 This repository automates the build of QGIS desktop and QGIS server Docker images.
 
-## QGIS 4.0 (Qt6)
+## QGIS 4 (Qt6)
 
-QGIS 4.0 images are available for distributions that ship Qt6: **Ubuntu Questing (25.10)** and **Debian Trixie**.
+QGIS 4 images are available for distributions that ship Qt6: **Ubuntu Resolute (26.04 LTS)** and **Debian Trixie**.
 
-Use the distribution-suffixed tags to pull QGIS 4.0:
+Ubuntu Resolute is the default base image, so the tags without suffix (`latest`, `stable`, `ltr`, ...) are built on it:
 
 ```sh
 # Desktop
-docker pull qgis/qgis:stable-questing
-docker pull qgis/qgis:4.0-trixie
+docker pull qgis/qgis:stable
+docker pull qgis/qgis:stable-trixie
 
 # Server
-docker pull qgis/qgis-server:stable-questing
-docker pull qgis/qgis-server:4.0-trixie
+docker pull qgis/qgis-server:stable
+docker pull qgis/qgis-server:stable-trixie
 ```
 
-The default `latest` and `stable` tags (without suffix) still point to the current default Ubuntu LTS (Noble), which ships QGIS 3.x.
-The `latest` tag will switch to QGIS 4.0 once the next Ubuntu LTS becomes the default base image.
+Ubuntu Questing (25.10) has reached its end of life: the `*-questing` tags are no longer updated.
 
 ## Desktop
 
