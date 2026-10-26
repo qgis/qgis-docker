@@ -87,6 +87,10 @@ jobs:
           sleep 5
           curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
           curl -sf 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"collections"'
+          # links follow the reverse proxy headers, including the path prefix
+          PROXY_HEADERS=(-H 'X-Forwarded-Host: example.com' -H 'X-Forwarded-Proto: https' -H 'X-Forwarded-Prefix: /qgis/')
+          curl -s "${PROXY_HEADERS[@]}" 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -q '"https://example.com/qgis/ogc/test_project?'
+          curl -s "${PROXY_HEADERS[@]}" 'http://localhost:8010/ogcapi/collections.json?MAP=/io/data/test_project/test_project.qgs' | grep -q '"https://example.com:8010/qgis/ogcapi/collections'
           docker rm -f qgis-server
 
       - name: test server project paths

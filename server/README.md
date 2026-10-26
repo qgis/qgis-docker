@@ -41,6 +41,23 @@ Projects are mounted in `/io/data`, in any folder structure, and served by Nginx
 For instance, `/ogc/team/alice/roads?SERVICE=WMS&REQUEST=GetCapabilities` serves `/io/data/team/alice/roads/roads.qgs`.
 For other routes, mount a custom Nginx configuration over `/etc/nginx/nginx.conf`.
 
+## Behind a reverse proxy
+
+The URLs in the responses (`GetCapabilities`, OGC API links) are built from the request.
+Behind a reverse proxy, Nginx takes the public URL from these headers, which the proxy should set:
+
+| Header               | Example                               |
+|----------------------|---------------------------------------|
+| `X-Forwarded-Host`   | `maps.example.com`                    |
+| `X-Forwarded-Proto`  | `https`                               |
+| `X-Forwarded-Port`   | `8443` (only for a non-default port)  |
+| `X-Forwarded-Prefix` | `/api/qgis` (if served under a path)  |
+
+For instance, with the host, scheme and prefix above, `/ogc/<name>` is announced as `https://maps.example.com/api/qgis/ogc/<name>`.
+The [FastCGI sample configuration](conf/nginx-fcgi-sample.conf) handles the same headers.
+
+For WMS, WFS, WCS and WMTS (not OGC API), a fixed URL can also be set with the `QGIS_SERVER_SERVICE_URL` [environment variable](https://docs.qgis.org/latest/en/docs/server_manual/config.html#environment-variables) or as the announced URL in the project.
+
 ## Available tags
 
 Image name: `qgis/qgis-server`

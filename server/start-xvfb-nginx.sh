@@ -59,6 +59,7 @@ location ${PREFIX} {
     fastcgi_param HTTPS           \$qgis_ssl;
     fastcgi_param SERVER_NAME     \$qgis_host;
     fastcgi_param SERVER_PORT     \$qgis_port;
+    fastcgi_param REQUEST_URI     \$qgis_prefix\$request_uri;
     include fastcgi_params;
 }
 LANDING_CONF
