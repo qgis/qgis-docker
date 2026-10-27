@@ -159,6 +159,8 @@ ENV QT_QPA_PLATFORM=offscreen
 # Qt Multimedia looks for PipeWire, which is not installed
 ENV QT_LOGGING_RULES=qt.multimedia.symbolsresolver.warning=false
 
-# qgis_process only loads the Python processing providers enabled in the user profile
-RUN qgis_process plugins enable gdalprovider \
-    && qgis_process plugins enable qgisprovider
+# qgis_process only loads the Python processing providers enabled in the user profile,
+# the GDAL and QGIS providers are split from the processing plugin since QGIS 4.4
+RUN for PLUGIN in gdalprovider qgisprovider; do \
+      if [ -d /usr/share/qgis/python/plugins/${PLUGIN} ]; then qgis_process plugins enable ${PLUGIN} || exit 1; fi; \
+    done

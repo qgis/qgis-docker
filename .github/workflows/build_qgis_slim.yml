@@ -148,6 +148,11 @@ jobs:
           docker image ls ${IMAGE}:${{ matrix.qgis.name }}
           SIZE=$(docker image inspect -f '{{ .Size }}' ${IMAGE}:${{ matrix.qgis.name }})
           echo "${{ matrix.qgis.name }} ${{ matrix.arch }} image size: $(( SIZE / 1024 / 1024 )) MB" >> $GITHUB_STEP_SUMMARY
+          # the largest packages and QGIS directories, in KB
+          docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c '
+            dpkg-query -Wf "\${Installed-Size}\t\${Package}\n" | sort -n | tail -30
+            du -s /usr/share/qgis/resources/* /usr/share/qgis/python/qgis/* | sort -n | tail -15
+          '
 
       - name: test PyQGIS
         run: docker run --rm -v $(pwd)/slim/test:/test ${IMAGE}:${{ matrix.qgis.name }} python3 /test/test_slim.py
