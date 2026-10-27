@@ -128,16 +128,19 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
     apt-get update \
     && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
-      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite python3 python3-psycopg2 \
+      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-psycopg2 \
       python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning qt6-qpa-plugins \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/ /
 RUN ldconfig
 
+ENV LANG=C.UTF-8
 ENV QGIS_PREFIX_PATH=/usr
 ENV PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins
 ENV QT_QPA_PLATFORM=offscreen
+# Qt Multimedia looks for PipeWire, which is not installed
+ENV QT_LOGGING_RULES=qt.multimedia.symbolsresolver.warning=false
 
 # qgis_process only loads the Python processing providers enabled in the user profile
 RUN qgis_process plugins enable gdalprovider \
