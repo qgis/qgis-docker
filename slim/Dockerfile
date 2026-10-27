@@ -80,6 +80,8 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DUSE_CCACHE=ON \
+      # silence the ABI notes of GCC on arm64, they exceed the log limit of BuildKit
+      -DCXX_EXTRA_FLAGS=-Wno-psabi \
       -DENABLE_TESTS=OFF \
       -DWITH_DESKTOP=OFF \
       -DWITH_SERVER=OFF \
@@ -112,7 +114,10 @@ RUN cd /install/usr \
       share/qgis/python/plugins/db_manager share/qgis/python/plugins/grassprovider share/qgis/python/plugins/MetaSearch \
     # Python modules are not stripped by the install
     && (find /install -type f -name '*.so*' | xargs strip --strip-unneeded 2>/dev/null || true) \
-    && du -sh /install/usr/* /install/usr/share/* /install/usr/share/qgis/* | sort -h
+    # one du per level, as du does not count twice the same directory
+    && for DIR in /install/usr /install/usr/lib /install/usr/share /install/usr/share/qgis /install/usr/share/qgis/python; do \
+      du -sh ${DIR}/*; \
+    done | sort -h | tail -30
 
 # Qt Multimedia libraries are copied, not installed from their packages, to leave out the FFmpeg plugin and codecs
 COPY slim/runtime-packages.sh /usr/local/bin/runtime-packages.sh
@@ -125,11 +130,23 @@ FROM ${os}:${release}
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
 ARG DEBIAN_FRONTEND=noninteractive
+
+# Mesa and LLVM, required by the EGL, GLX and EGLFS libraries of Qt, are not needed to render offscreen without 3D:
+# empty packages stand in for them
+RUN for PACKAGE in libegl-mesa0 libgbm1 libglx-mesa0; do \
+      mkdir -p /tmp/${PACKAGE}/DEBIAN \
+      && printf 'Package: %s\nVersion: 99\nArchitecture: all\nMaintainer: QGIS <info@qgis.org>\nDescription: Empty package replacing Mesa in qgis-slim\n' \
+        ${PACKAGE} > /tmp/${PACKAGE}/DEBIAN/control \
+      && dpkg-deb --build /tmp/${PACKAGE} /tmp/${PACKAGE}.deb \
+      && dpkg -i /tmp/${PACKAGE}.deb; \
+    done \
+    && rm -rf /tmp/*
+
 RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
     apt-get update \
     && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
-      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-psycopg2 \
-      python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning qt6-qpa-plugins \
+      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-numpy \
+      python3-psycopg2 python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning python3-yaml qt6-qpa-plugins \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/ /
