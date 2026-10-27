@@ -6,7 +6,7 @@
 ARG os=ubuntu
 ARG release=resolute
 
-FROM ${os}:${release} AS builder
+FROM ${os}:${release} AS gdal
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -64,6 +64,8 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
     && DEB_PYTHON_INSTALL_LAYOUT=deb_system cmake --install build --strip \
     && DEB_PYTHON_INSTALL_LAYOUT=deb_system DESTDIR=/install cmake --install build --strip \
     && rm -rf /src/gdal
+
+FROM gdal AS builder
 
 # qgis_ref can be a branch, a tag or a commit
 ARG qgis_ref=master

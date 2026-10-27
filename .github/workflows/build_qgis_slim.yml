@@ -81,7 +81,16 @@ jobs:
             {"ccache": {"target": "/root/.ccache", "id": "ccache"}}
           skip-extraction: ${{ steps.ccache.outputs.cache-hit }}
 
-      # the builder stage is cached on its own, so that it is not rebuilt if the final stage fails
+      # the build stages are cached one by one, so that they are not rebuilt if a later one fails
+      - name: build GDAL
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: slim/Dockerfile
+          target: gdal
+          cache-from: type=gha,scope=qgis-slim-${{ matrix.arch }}
+          cache-to: type=gha,scope=qgis-slim-${{ matrix.arch }},mode=max
+
       - name: build QGIS
         uses: docker/build-push-action@v7
         with:
