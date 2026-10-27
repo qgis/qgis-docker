@@ -211,7 +211,7 @@ jobs:
 
   push:
     needs: [versions, build]
-    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     name: push ${{ matrix.qgis.name }} multi-arch image
     strategy:
