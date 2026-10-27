@@ -7,11 +7,15 @@ A headless QGIS image for scripts and processing: the QGIS libraries, the Python
 Unlike the other images, it is built from source on *Ubuntu 26.04 (resolute)*, for `linux/amd64` and `linux/arm64`:
 
 - GDAL is compiled with a limited set of drivers' dependencies, including Apache Arrow and Parquet (GeoParquet, GeoArrow)
-- QGIS is compiled from `master` with the core, analysis and gui libraries and the processing plugin, but without the desktop application, server, 3D, PDAL, translations and development files
+- QGIS is compiled with the core, analysis and gui libraries and the processing plugin, but without the desktop application, server, 3D, PDAL, translations and development files
+- Mesa is replaced by empty packages: rendering works offscreen, but OpenGL is not available
 
 ```sh
-docker pull qgis/qgis-slim:nightly
+docker pull qgis/qgis-slim:nightly  # master, also tagged latest
+docker pull qgis/qgis-slim:stable   # latest release, also tagged with its version, e.g. 4.2 and 4.2.3
 ```
+
+`ltr` is built once the long term release is QGIS 4 (Qt6).
 
 ## Usage
 
