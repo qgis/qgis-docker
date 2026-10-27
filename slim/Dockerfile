@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libprotobuf-dev libqca-qt6-dev libqscintilla2-qt6-dev libzip-dev protobuf-compiler \
       qt6-5compat-dev qt6-base-dev qt6-base-private-dev qt6-declarative-dev qt6-l10n-tools \
       qt6-multimedia-dev qt6-positioning-dev qt6-svg-dev qt6-tools-dev qtkeychain-qt6-dev \
-      pyqt6-dev pyqt6.qsci-dev python3-pyqt6 python3-pyqt6.qtmultimedia python3-pyqt6.qtpositioning \
-      python3-pyqt6.sip python3-pyqtbuild sip-tools \
+      pyqt6-dev pyqt6.qsci-dev python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtmultimedia \
+      python3-pyqt6.qtpositioning python3-pyqt6.sip python3-pyqtbuild sip-tools \
     && rm -rf /var/lib/apt/lists/*
 
 ENV CCACHE_DIR=/root/.ccache
@@ -136,3 +136,7 @@ RUN ldconfig
 ENV QGIS_PREFIX_PATH=/usr
 ENV PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins
 ENV QT_QPA_PLATFORM=offscreen
+
+# qgis_process only loads the Python processing providers enabled in the user profile
+RUN qgis_process plugins enable gdalprovider \
+    && qgis_process plugins enable qgisprovider
