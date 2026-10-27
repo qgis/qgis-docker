@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libprotobuf-dev libqca-qt6-dev libqscintilla2-qt6-dev libzip-dev protobuf-compiler \
       qt6-5compat-dev qt6-base-dev qt6-base-private-dev qt6-declarative-dev qt6-l10n-tools \
       qt6-multimedia-dev qt6-positioning-dev qt6-svg-dev qt6-tools-dev qtkeychain-qt6-dev \
-      pyqt6-dev python3-pyqt6 python3-pyqt6.qtmultimedia python3-pyqt6.qtpositioning python3-pyqt6.sip \
-      python3-pyqtbuild sip-tools \
+      pyqt6-dev pyqt6.qsci-dev python3-pyqt6 python3-pyqt6.qtmultimedia python3-pyqt6.qtpositioning \
+      python3-pyqt6.sip python3-pyqtbuild sip-tools \
     && rm -rf /var/lib/apt/lists/*
 
 ENV CCACHE_DIR=/root/.ccache
@@ -125,7 +125,7 @@ RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
     apt-get update \
     && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
       ca-certificates libqca-qt6-plugins libqt6sql6-sqlite python3 python3-psycopg2 \
-      python3-pyqt6 python3-pyqt6.qtpositioning qt6-qpa-plugins \
+      python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning qt6-qpa-plugins \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/ /
