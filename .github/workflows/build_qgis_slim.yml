@@ -1,0 +1,189 @@
+name: Build QGIS slim Docker images
+
+on:
+  schedule:
+    # runs once a week
+    - cron: '0 6 * * 0'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'slim/**'
+      - '.github/workflows/build_qgis_slim.yml'
+  push:
+    branches:
+      - main
+      - qgis-slim
+    paths:
+      - 'slim/**'
+      - '.github/workflows/build_qgis_slim.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: qgis/qgis-slim
+  PUSH: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+
+jobs:
+  build:
+    name: build ${{ matrix.arch }}
+    # compiling QGIS under emulation would be too slow, each architecture is built on its own runner
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - id: qgis
+        name: determine QGIS revision
+        run: |
+          SHA=$(git ls-remote https://github.com/qgis/QGIS.git refs/heads/master | cut -f1)
+          CMAKELISTS=$(curl -fsSL https://raw.githubusercontent.com/qgis/QGIS/${SHA}/CMakeLists.txt)
+          VERSION=$(for PART in MAJOR MINOR PATCH; do
+            echo "${CMAKELISTS}" | sed -nE "s/^set\(CPACK_PACKAGE_VERSION_${PART} \"([0-9]+)\"\)/\1/p"
+          done | paste -sd.)
+          echo "sha=${SHA}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "QGIS ${VERSION} (https://github.com/qgis/QGIS/commit/${SHA})" >> $GITHUB_STEP_SUMMARY
+
+      - id: buildx
+        uses: docker/setup-buildx-action@v4
+
+      - id: ccache
+        name: restore ccache
+        uses: actions/cache@v6
+        with:
+          path: ccache
+          key: qgis-slim-ccache-${{ matrix.arch }}-${{ github.run_id }}
+          restore-keys: qgis-slim-ccache-${{ matrix.arch }}-
+
+      - name: inject ccache into BuildKit
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-map: |
+            {"ccache": {"target": "/root/.ccache", "id": "ccache"}}
+          skip-extraction: ${{ steps.ccache.outputs.cache-hit }}
+
+      # the builder stage is cached on its own, so that it is not rebuilt if the final stage fails
+      - name: build QGIS
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: slim/Dockerfile
+          target: builder
+          build-args: qgis_ref=${{ steps.qgis.outputs.sha }}
+          cache-from: type=gha,scope=qgis-slim-${{ matrix.arch }}
+          cache-to: type=gha,scope=qgis-slim-${{ matrix.arch }},mode=max
+
+      - name: build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: slim/Dockerfile
+          build-args: qgis_ref=${{ steps.qgis.outputs.sha }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.qgis.outputs.version }}
+            org.opencontainers.image.revision=${{ steps.qgis.outputs.sha }}
+          load: true
+          tags: ${{ env.IMAGE }}:nightly
+          cache-from: type=gha,scope=qgis-slim-${{ matrix.arch }}
+          cache-to: type=gha,scope=qgis-slim-${{ matrix.arch }},mode=max
+
+      - name: image size
+        run: |
+          docker image ls ${IMAGE}:nightly
+          SIZE=$(docker image inspect -f '{{ .Size }}' ${IMAGE}:nightly)
+          echo "${{ matrix.arch }} image size: $(( SIZE / 1024 / 1024 )) MB" >> $GITHUB_STEP_SUMMARY
+
+      - name: test PyQGIS
+        run: docker run --rm -v $(pwd)/slim/test:/test ${IMAGE}:nightly python3 /test/test_slim.py
+
+      - name: test qgis_process
+        run: |
+          docker run --rm -v $(pwd)/server/test/data:/data ${IMAGE}:nightly bash -c '
+            set -e
+            qgis_process --version
+            qgis_process run native:buffer --INPUT=/data/test_project/layers/layer.gpkg --DISTANCE=1 --OUTPUT=/tmp/buffer.parquet
+            ogrinfo -so -al /tmp/buffer.parquet | grep -q "Feature Count: [1-9]"
+            qgis_process list | grep -q "gdal:buffervectors"
+          '
+
+      - name: Login to Docker Hub
+        if: ${{ env.PUSH == 'true' }}
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - id: push
+        name: push by digest
+        if: ${{ env.PUSH == 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: slim/Dockerfile
+          build-args: qgis_ref=${{ steps.qgis.outputs.sha }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.qgis.outputs.version }}
+            org.opencontainers.image.revision=${{ steps.qgis.outputs.sha }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=qgis-slim-${{ matrix.arch }}
+
+      - name: export digest
+        if: ${{ env.PUSH == 'true' }}
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          DIGEST="${{ steps.push.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${DIGEST#sha256:}"
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ env.PUSH == 'true' }}
+        with:
+          name: digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  push:
+    needs: build
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    name: push multi-arch image
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: create manifest list
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create --tag ${IMAGE}:nightly --tag ${IMAGE}:latest $(printf "${IMAGE}@sha256:%s " *)
+          docker buildx imagetools inspect ${IMAGE}:nightly
