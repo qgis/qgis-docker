@@ -109,7 +109,7 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
 
 # Drop what is only useful for development or the desktop application
 RUN cd /install/usr \
-    && rm -rf include lib/cmake lib/pkgconfig lib/*/cmake lib/*/pkgconfig share/qgis/i18n \
+    && rm -rf include lib/cmake lib/pkgconfig lib/*/cmake lib/*/pkgconfig share/qgis/i18n share/qgis/resources/cpt-city-qgis-min \
       share/qgis/python/console share/qgis/python/pyplugin_installer share/qgis/python/qsci_apis \
       share/qgis/python/plugins/db_manager share/qgis/python/plugins/grassprovider share/qgis/python/plugins/MetaSearch \
     # Python modules are not stripped by the install
