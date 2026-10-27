@@ -10,18 +10,11 @@ FROM ${os}:${release} AS gdal
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      bison build-essential ca-certificates ccache cmake curl flex git ninja-build pkgconf swig \
-      # GDAL
+      build-essential ca-certificates ccache cmake curl git ninja-build pkgconf swig \
       libarrow-acero-dev libarrow-dataset-dev libarrow-dev libparquet-dev \
       libcurl4-openssl-dev libdeflate-dev libexpat1-dev libgeos-dev libjpeg-dev libopenjp2-7-dev \
       libpng-dev libpq-dev libproj-dev libspatialite-dev libsqlite3-dev libssl-dev libwebp-dev libzstd-dev \
       python3-dev python3-numpy python3-pip python3-setuptools \
-      # QGIS
-      libprotobuf-dev libqca-qt6-dev libqscintilla2-qt6-dev libzip-dev protobuf-compiler \
-      qt6-5compat-dev qt6-base-dev qt6-base-private-dev qt6-declarative-dev qt6-l10n-tools \
-      qt6-multimedia-dev qt6-positioning-dev qt6-svg-dev qt6-tools-dev qtkeychain-qt6-dev \
-      pyqt6-dev pyqt6.qsci-dev python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtmultimedia \
-      python3-pyqt6.qtpositioning python3-pyqt6.sip python3-pyqtbuild sip-tools \
     && rm -rf /var/lib/apt/lists/*
 
 ENV CCACHE_DIR=/root/.ccache
@@ -66,6 +59,15 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
     && rm -rf /src/gdal
 
 FROM gdal AS builder
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      bison flex libprotobuf-dev libqca-qt6-dev libqscintilla2-qt6-dev libzip-dev protobuf-compiler \
+      qt6-5compat-dev qt6-base-dev qt6-base-private-dev qt6-declarative-dev qt6-l10n-tools \
+      qt6-multimedia-dev qt6-positioning-dev qt6-svg-dev qt6-tools-dev qtkeychain-qt6-dev \
+      pyqt6-dev pyqt6.qsci-dev python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtmultimedia \
+      python3-pyqt6.qtpositioning python3-pyqt6.sip python3-pyqtbuild sip-tools \
+    && rm -rf /var/lib/apt/lists/*
 
 # qgis_ref can be a branch, a tag or a commit
 ARG qgis_ref=master
