@@ -25,7 +25,7 @@ concurrency:
 
 env:
   IMAGE: qgis/qgis-slim
-  PUSH: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+  PUSH: ${{ github.event_name != 'pull_request' }}
 
 jobs:
   versions:
