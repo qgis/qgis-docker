@@ -180,12 +180,15 @@ jobs:
           '
 
       - name: test PyQGIS
+        timeout-minutes: 10
         run: docker run --rm -v $(pwd)/slim/test:/test ${IMAGE}:${{ matrix.qgis.name }} python3 /test/test_slim.py
 
       - name: test pip
+        timeout-minutes: 10
         run: docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c 'pip install --no-deps --quiet humanize && python3 -c "import humanize"'
 
       - name: test xvfb
+        timeout-minutes: 10
         run: |
           docker run --rm ${IMAGE}:${{ matrix.qgis.name }} xvfb-run -a env QT_QPA_PLATFORM=xcb python3 -c '
           from qgis.core import QgsApplication
@@ -194,6 +197,7 @@ jobs:
           '
 
       - name: test qgis_process
+        timeout-minutes: 10
         run: |
           docker run --rm -v $(pwd)/server/test/data:/data ${IMAGE}:${{ matrix.qgis.name }} bash -c '
             set -e

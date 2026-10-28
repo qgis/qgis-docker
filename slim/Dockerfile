@@ -146,7 +146,7 @@ RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
     apt-get update \
     && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
       ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-numpy python3-pip \
-      python3-psycopg2 python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning python3-yaml qt6-qpa-plugins xvfb \
+      python3-psycopg2 python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning python3-yaml qt6-qpa-plugins tini xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/ /
@@ -166,3 +166,6 @@ ENV QT_LOGGING_RULES=qt.multimedia.symbolsresolver.warning=false
 RUN for PLUGIN in gdalprovider qgisprovider; do \
       if [ -d /usr/share/qgis/python/plugins/${PLUGIN} ]; then qgis_process plugins enable ${PLUGIN} || exit 1; fi; \
     done
+
+# an init process forwards the signals and reaps the zombie processes, xvfb-run hangs if it is the PID 1
+ENTRYPOINT ["/usr/bin/tini", "--"]
