@@ -4,7 +4,7 @@
 
 ## General information
 
-The Docker image is built using *Ubuntu 26.04 (resolute)*, *Debian 13 (trixie)* and, for QGIS 3 LTR only, *Ubuntu 24.04 (noble)* and official QGIS DEBs from <https://qgis.org/>.
+The Docker image is built using *Ubuntu 26.04 (resolute)*, *Debian 13 (trixie)* and, for QGIS 3 LTR only, *Ubuntu 24.04 (noble)* and *22.04 (jammy)*, with the official QGIS DEBs from <https://qgis.org/>.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 ## Requisites
@@ -75,7 +75,7 @@ For WMS, WFS, WCS and WMTS (not OGC API), a fixed URL can also be set with the `
 Image name: `qgis/qgis-server`
 
 - **QGIS stable**: `stable` | `stable-trixie`
-- **QGIS LTR**: `ltr` | `ltr-trixie` | `ltr-noble`
+- **QGIS LTR**: `ltr` | `ltr-trixie` | `ltr-noble` | `ltr-jammy`
 - **QGIS version**: e.g. `4.2` | `4.2.3` | `4.2.3-trixie`
 - **QGIS nightly**: `nightly` | `latest`
 

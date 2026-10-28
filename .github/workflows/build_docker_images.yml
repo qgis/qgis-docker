@@ -184,6 +184,8 @@ jobs:
         version: ['stable', 'ltr']
         platform:
           - os: ubuntu
+            release: jammy
+          - os: ubuntu
             release: noble
           - os: ubuntu
             release: resolute
@@ -191,6 +193,17 @@ jobs:
             release: trixie
           # - os: debian
           #   release: forky
+        # QGIS 4 is not packaged for jammy and noble, only the QGIS 3 LTR:
+        # their stable repository stopped at 3.44.7, which would overwrite the 3.44 tag of the LTR
+        exclude:
+          - version: stable
+            platform:
+              os: ubuntu
+              release: jammy
+          - version: stable
+            platform:
+              os: ubuntu
+              release: noble
 
     steps:
       - uses: actions/checkout@v7
