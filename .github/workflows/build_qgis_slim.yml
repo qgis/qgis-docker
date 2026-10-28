@@ -49,15 +49,23 @@ jobs:
           QGIS=$(jq -cn --arg ref ${SHA} --arg version ${VERSION} \
             '[{name: "nightly", ref: $ref, version: $version, tags: "nightly latest"}]')
 
-          # stable and ltr are built from their release tag, for QGIS 4 (Qt6) only
-          RELEASES=$(./scripts/get_ubuntu_qgis_package_version.py --qgis=desktop --os=ubuntu --dist=resolute)
-          for RELEASE in stable ltr; do
-            VERSION=$(echo "${RELEASES}" | jq -r ".${RELEASE}")
-            if [[ ${VERSION%%.*} -ge 4 ]]; then
-              QGIS=$(echo "${QGIS}" | jq -c --arg name ${RELEASE} --arg ref final-${VERSION//./_} --arg version ${VERSION} \
-                '. + [{name: $name, ref: $ref, version: $version, tags: "\($name) \($version | split(".")[0:2] | join(".")) \($version)"}]')
-            fi
-          done
+          # releases are built from the last tag of each minor version since QGIS 4.2,
+          # the last minor version is tagged stable, and the one packaged as long term release ltr
+          RELEASES=$(git ls-remote --tags --refs https://github.com/qgis/QGIS.git 'final-*' \
+            | sed -nE 's|.*refs/tags/final-([0-9]+_[0-9]+_[0-9]+)$|\1|p' \
+            | jq -Rn '[inputs | split("_") | map(tonumber) | select(. >= [4, 2])] | group_by(.[0:2]) | map(max | map(tostring) | join("."))')
+          LTR=$(./scripts/get_ubuntu_qgis_package_version.py --qgis=desktop --os=ubuntu --dist=resolute | jq -r .ltr)
+          QGIS=$(jq -cn --argjson qgis "${QGIS}" --argjson releases "${RELEASES}" --arg ltr ${LTR} '
+            def minor: split(".")[0:2] | join(".");
+            $qgis + [$releases[] as $version | {
+              name: ($version | minor),
+              ref: "final-\($version | split(".") | join("_"))",
+              version: $version,
+              tags: ([($version | minor), $version]
+                + (if $version == $releases[-1] then ["stable"] else [] end)
+                + (if ($version | minor) == ($ltr | minor) then ["ltr"] else [] end)
+                | join(" "))
+            }]')
 
           echo "qgis=${QGIS}" >> $GITHUB_OUTPUT
           echo "${QGIS}" | jq -r '.[] | "- \(.name): QGIS \(.version) (\(.ref)), tags: \(.tags)"' >> $GITHUB_STEP_SUMMARY

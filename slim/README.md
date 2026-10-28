@@ -12,10 +12,12 @@ Unlike the other images, it is built from source on *Ubuntu 26.04 (resolute)*, f
 
 ```sh
 docker pull qgis/qgis-slim:nightly  # master, also tagged latest
-docker pull qgis/qgis-slim:stable   # latest release, also tagged with its version, e.g. 4.2 and 4.2.3
+docker pull qgis/qgis-slim:stable   # latest release
+docker pull qgis/qgis-slim:4.2      # latest patch release of a minor version, also tagged with it, e.g. 4.2.3
 ```
 
-`ltr` is built once the long term release is QGIS 4 (Qt6).
+Every minor version since QGIS 4.2 is built from its latest patch release.
+`ltr` is added once the long term release is QGIS 4.2 or newer.
 
 ## Usage
 
