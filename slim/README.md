@@ -52,6 +52,12 @@ docker run --rm -v "${PWD}:/data" qgis/qgis-slim:nightly python3 /data/script.py
 
 Additional Python packages can be installed with `pip install`, into `/usr/local`.
 
+`xvfb-run` provides a virtual X display for what requires one, Qt uses it with `QT_QPA_PLATFORM=xcb`:
+
+```sh
+docker run --rm qgis/qgis-slim:nightly xvfb-run -a env QT_QPA_PLATFORM=xcb python3 /data/script.py
+```
+
 ## Building
 
 ```sh

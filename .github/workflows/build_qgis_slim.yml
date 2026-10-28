@@ -185,6 +185,14 @@ jobs:
       - name: test pip
         run: docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c 'pip install --no-deps --quiet humanize && python3 -c "import humanize"'
 
+      - name: test xvfb
+        run: |
+          docker run --rm ${IMAGE}:${{ matrix.qgis.name }} xvfb-run -a env QT_QPA_PLATFORM=xcb python3 -c '
+          from qgis.core import QgsApplication
+          app = QgsApplication([], True)
+          assert app.platformName() == "xcb", app.platformName()
+          '
+
       - name: test qgis_process
         run: |
           docker run --rm -v $(pwd)/server/test/data:/data ${IMAGE}:${{ matrix.qgis.name }} bash -c '
