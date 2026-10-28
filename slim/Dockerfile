@@ -145,7 +145,7 @@ RUN for PACKAGE in libegl-mesa0 libgbm1 libglx-mesa0; do \
 RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
     apt-get update \
     && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
-      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-numpy \
+      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-numpy python3-pip \
       python3-psycopg2 python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning python3-yaml qt6-qpa-plugins \
     && rm -rf /var/lib/apt/lists/*
 
@@ -155,6 +155,8 @@ RUN ldconfig
 ENV LANG=C.UTF-8
 ENV QGIS_PREFIX_PATH=/usr
 ENV PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins
+# pip installs into /usr/local, next to the Python packages of the system
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 ENV QT_QPA_PLATFORM=offscreen
 # Qt Multimedia looks for PipeWire, which is not installed
 ENV QT_LOGGING_RULES=qt.multimedia.symbolsresolver.warning=false

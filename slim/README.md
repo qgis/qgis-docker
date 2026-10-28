@@ -49,6 +49,8 @@ docker run --rm -v "${PWD}:/data" qgis/qgis-slim:nightly python3 /data/script.py
 
 `QT_QPA_PLATFORM` is set to `offscreen` and `PYTHONPATH` includes the QGIS Python modules and plugins.
 
+Additional Python packages can be installed with `pip install`, into `/usr/local`.
+
 ## Building
 
 ```sh

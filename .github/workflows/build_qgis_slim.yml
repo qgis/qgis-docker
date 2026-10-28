@@ -181,6 +181,9 @@ jobs:
       - name: test PyQGIS
         run: docker run --rm -v $(pwd)/slim/test:/test ${IMAGE}:${{ matrix.qgis.name }} python3 /test/test_slim.py
 
+      - name: test pip
+        run: docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c 'pip install --no-deps --quiet humanize && python3 -c "import humanize"'
+
       - name: test qgis_process
         run: |
           docker run --rm -v $(pwd)/server/test/data:/data ${IMAGE}:${{ matrix.qgis.name }} bash -c '
