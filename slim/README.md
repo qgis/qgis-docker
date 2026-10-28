@@ -16,8 +16,9 @@ docker pull qgis/qgis-slim:stable   # latest release
 docker pull qgis/qgis-slim:4.2      # latest patch release of a minor version, also tagged with it, e.g. 4.2.3
 ```
 
-Every minor version since QGIS 4.2 is built from its latest patch release.
+The stable and long term releases are built from their latest patch release, since QGIS 4.2.
 `ltr` is added once the long term release is QGIS 4.2 or newer.
+The images of older minor versions remain available, but are not rebuilt anymore.
 
 ## Usage
 

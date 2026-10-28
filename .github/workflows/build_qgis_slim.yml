@@ -41,11 +41,11 @@ jobs:
         name: determine QGIS versions
         run: |
           # the versions are detected by the scheduled runs, the other runs rebuild the published images:
-          # the nightly and the one of each minor version, with all the tags sharing their digest
+          # the nightly, stable and ltr ones, with all the tags sharing their digest
           if [[ ${GITHUB_EVENT_NAME} != schedule ]]; then
             QGIS=$(curl -fsSL "https://hub.docker.com/v2/repositories/${IMAGE}/tags?page_size=100" \
-              | jq -c '[.results | group_by(.digest)[] | map(.name)
-                  | {name: map(select(. == "nightly" or test("^[0-9]+\\.[0-9]+$")))[0], tags: join(" ")} | select(.name)]')
+              | jq -c '[.results | group_by(.digest)[] | map(.name) | select(any(.[]; IN("nightly", "stable", "ltr")))
+                  | {name: map(select(. == "nightly" or test("^[0-9]+\\.[0-9]+$")))[0], tags: join(" ")}]')
             for NAME in $(echo "${QGIS}" | jq -r '.[].name'); do
               LABELS=$(docker buildx imagetools inspect ${IMAGE}:${NAME} --format '{{ json .Image }}' | jq -c 'first(.[]).config.Labels')
               QGIS=$(echo "${QGIS}" | jq -c --arg name ${NAME} --argjson labels "${LABELS}" \
@@ -64,15 +64,16 @@ jobs:
             QGIS=$(jq -cn --arg ref ${SHA} --arg version ${VERSION} \
               '[{name: "nightly", ref: $ref, version: $version, tags: "nightly latest"}]')
 
-            # releases are built from the last tag of each minor version since QGIS 4.2,
-            # the last minor version is tagged stable, and the one packaged as long term release ltr
+            # the stable and long term releases are built from the last tag of their minor version, since QGIS 4.2:
+            # the stable release is the last minor version, the long term release is the one packaged as such
             RELEASES=$(git ls-remote --tags --refs https://github.com/qgis/QGIS.git 'final-*' \
               | sed -nE 's|.*refs/tags/final-([0-9]+_[0-9]+_[0-9]+)$|\1|p' \
               | jq -Rn '[inputs | split("_") | map(tonumber) | select(. >= [4, 2])] | group_by(.[0:2]) | map(max | map(tostring) | join("."))')
             LTR=$(./scripts/get_ubuntu_qgis_package_version.py --qgis=desktop --os=ubuntu --dist=resolute | jq -r .ltr)
             QGIS=$(jq -cn --argjson qgis "${QGIS}" --argjson releases "${RELEASES}" --arg ltr ${LTR} '
               def minor: split(".")[0:2] | join(".");
-              $qgis + [$releases[] as $version | {
+              $qgis + [$releases[] as $version
+                | select($version == $releases[-1] or ($version | minor) == ($ltr | minor)) | {
                 name: ($version | minor),
                 ref: "final-\($version | split(".") | join("_"))",
                 version: $version,
