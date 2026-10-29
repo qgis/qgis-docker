@@ -50,7 +50,8 @@ docker run --rm -v "${PWD}:/data" qgis/qgis-slim:nightly python3 /data/script.py
 
 `QT_QPA_PLATFORM` is set to `offscreen` and `PYTHONPATH` includes the QGIS Python modules and plugins.
 
-Additional Python packages can be installed with `pip install`, into `/usr/local`.
+The image includes the Python packages numpy, PyYAML, pydantic, psycopg (3) and psycopg2.
+Additional ones can be installed with `pip install`, into `/usr/local`.
 
 `xvfb-run` provides a virtual X display for what requires one, Qt uses it with `QT_QPA_PLATFORM=xcb`:
 
