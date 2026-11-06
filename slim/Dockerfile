@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# QGIS libraries, Python bindings and qgis_process, without desktop nor server,
-# built from source on top of a slim GDAL with Arrow and Parquet support
+# QGIS built from source on top of a slim GDAL with Arrow and Parquet support, without the desktop application.
+# QGIS is compiled once for both targets:
+# - slim (qgis/qgis-slim): the QGIS libraries, Python bindings and qgis_process
+# - server (qgis/qgis-server-slim): the slim image with QGIS Server, set up as the qgis-server image
 
 ARG os=ubuntu
 ARG release=resolute
@@ -62,12 +64,18 @@ FROM gdal AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      bison flex libprotobuf-dev libqca-qt6-dev libqscintilla2-qt6-dev libzip-dev protobuf-compiler \
+      bison flex libfcgi-dev libprotobuf-dev libqca-qt6-dev libqscintilla2-qt6-dev libzip-dev protobuf-compiler \
       qt6-5compat-dev qt6-base-dev qt6-base-private-dev qt6-declarative-dev qt6-l10n-tools \
       qt6-multimedia-dev qt6-positioning-dev qt6-svg-dev qt6-tools-dev qtkeychain-qt6-dev \
       pyqt6-dev pyqt6.qsci-dev python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtmultimedia \
       python3-pyqt6.qtpositioning python3-pyqt6.sip python3-pyqtbuild sip-tools \
     && rm -rf /var/lib/apt/lists/*
+
+# Node.js and Yarn 1 build the web app of the server landing page: the lockfiles of QGIS are not supported by
+# the Yarn 4 of Ubuntu
+COPY --from=node:22-slim /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:22-slim /opt/ /opt/
+RUN ln -s /opt/yarn-v*/bin/yarn /usr/local/bin/yarn && yarn --version
 
 # qgis_ref can be a branch, a tag or a commit
 ARG qgis_ref=master
@@ -84,7 +92,12 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
       -DCXX_EXTRA_FLAGS=-Wno-psabi \
       -DENABLE_TESTS=OFF \
       -DWITH_DESKTOP=OFF \
-      -DWITH_SERVER=OFF \
+      # the server files are split from the install below, for the server image only
+      -DWITH_SERVER=ON \
+      -DWITH_SERVER_LANDINGPAGE_WEBAPP=ON \
+      -DYARN_INSTALL_OPT=--frozen-lockfile \
+      # where the packages, and so the nginx configuration of the qgis-server image, have it
+      -DQGIS_CGIBIN_SUBDIR=lib/cgi-bin \
       -DWITH_3D=OFF \
       -DWITH_QUICK=OFF \
       -DWITH_CUSTOM_WIDGETS=OFF \
@@ -112,6 +125,8 @@ RUN cd /install/usr \
     && rm -rf include lib/cmake lib/pkgconfig lib/*/cmake lib/*/pkgconfig share/qgis/i18n share/qgis/resources/cpt-city-qgis-min \
       share/qgis/python/console share/qgis/python/pyplugin_installer share/qgis/python/qsci_apis \
       share/qgis/python/plugins/db_manager share/qgis/python/plugins/grassprovider share/qgis/python/plugins/MetaSearch \
+      # the sources of the landing page web app, before QGIS 4.4
+      share/qgis/resources/server/src \
     # Python modules are not stripped by the install
     && (find /install -type f -name '*.so*' | xargs strip --strip-unneeded 2>/dev/null || true) \
     # one du per level, as du does not count twice the same directory
@@ -119,14 +134,25 @@ RUN cd /install/usr \
       du -sh ${DIR}/*; \
     done | sort -h | tail -30
 
+# QGIS Server is moved to its own staging directory, which only the server image copies:
+# a path that does not exist anymore fails the build
+RUN cd /install \
+    && for FILE in usr/bin/qgis_mapserver usr/lib/cgi-bin usr/lib/libqgis_server.so* usr/lib/qgis/server \
+      usr/share/qgis/python/qgis/_server* usr/share/qgis/python/qgis/server usr/share/qgis/resources/server; do \
+      mkdir -p /install-server/$(dirname ${FILE}) && mv ${FILE} /install-server/${FILE} || exit 1; \
+    done \
+    && test -f /install-server/usr/share/qgis/resources/server/api/ogc/static/landingpage/index.html \
+    && du -sh /install-server/usr/*/* /install-server/usr/share/qgis/*/*
+
 # Qt Multimedia libraries are copied, not installed from their packages, to leave out the FFmpeg plugin and codecs
 COPY slim/runtime-packages.sh /usr/local/bin/runtime-packages.sh
 RUN mkdir /runtime \
     && runtime-packages.sh /install libqt6multimedia6 libqt6multimediawidgets6 libqt6spatialaudio6 python3-pyqt6.qtmultimedia \
       > /runtime/packages.txt \
-    && cat /runtime/packages.txt
+    && runtime-packages.sh /install-server > /runtime/server-packages.txt \
+    && tail -n +1 /runtime/*.txt
 
-FROM ${os}:${release}
+FROM ${os}:${release} AS slim
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -170,3 +196,39 @@ RUN for PLUGIN in gdalprovider qgisprovider; do \
 
 # an init process forwards the signals and reaps the zombie processes, xvfb-run hangs if it is the PID 1
 ENTRYPOINT ["/usr/bin/tini", "--"]
+
+# QGIS Server on the slim image, with the Nginx configuration, start script and settings of the qgis-server image
+FROM slim AS server
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
+    apt-get update \
+    && xargs -a /runtime/server-packages.txt apt-get install -y --no-install-recommends fontconfig nginx spawn-fcgi \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /install-server/ /
+RUN ldconfig
+
+COPY server/conf/qgis-server-nginx.conf /etc/nginx/nginx.conf
+COPY server/start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
+
+ENV QGIS_PLUGINPATH=/io/plugins
+ENV QGIS_SERVER_LOG_LEVEL=1
+ENV QGIS_SERVER_LOG_STDERR=true
+ENV QGIS_SERVER_PARALLEL_RENDERING=true
+ENV QGIS_SERVER_MAX_THREADS=2
+ENV QGIS_AUTH_DB_DIR_PATH=/tmp/
+
+# QGIS Server does not print offscreen: Qt uses the X display of Xvfb, started by the start script
+ENV DISPLAY=:99
+ENV QT_QPA_PLATFORM=
+ENV HOME=/var/lib/qgis
+
+# Writable by anyone, so that the container can also run as an arbitrary non-root user
+RUN mkdir $HOME /tmp/.X11-unix \
+    && mkdir -p /etc/nginx/qgis.d \
+    && chmod 1777 $HOME /tmp/.X11-unix /etc/nginx/qgis.d /var/lib/nginx /run
+WORKDIR $HOME
+
+EXPOSE 80/tcp 9993/tcp
+CMD ["/usr/local/bin/start-xvfb-nginx.sh"]

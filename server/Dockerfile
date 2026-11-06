@@ -53,6 +53,7 @@ COPY --from=landingpage /dist/ /usr/share/qgis/resources/server/api/ogc/static/
 
 # This part is kept to allow the container to be used in
 # standalone mode, without composing it with 'nginx'
+# The configuration, start script and environment are shared with the server target of slim/Dockerfile
 ADD server/conf/qgis-server-nginx.conf /etc/nginx/nginx.conf
 ADD server/start-xvfb-nginx.sh /usr/local/bin/start-xvfb-nginx.sh
 

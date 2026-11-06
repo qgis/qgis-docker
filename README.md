@@ -4,7 +4,7 @@ This repository automates the build of QGIS desktop and QGIS server Docker image
 
 The desktop and server images are only built for `linux/amd64`, as the QGIS package repositories do not provide arm64 packages.
 On arm64 hosts (e.g. Apple Silicon), they can be run under emulation with `--platform linux/amd64`.
-The slim image is built from source for both `linux/amd64` and `linux/arm64`.
+The slim images are built from source for both `linux/amd64` and `linux/arm64`.
 
 ## QGIS 4 (Qt6)
 
@@ -39,7 +39,8 @@ Ubuntu Questing (25.10) has reached its end of life: the `*-questing` tags are n
 ## Slim
 
 [![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis-slim)](https://hub.docker.com/r/qgis/qgis-slim)
+[![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis-server-slim)](https://hub.docker.com/r/qgis/qgis-server-slim)
 
-Headless QGIS (libraries, Python bindings and `qgis_process`) on a GDAL with Arrow and Parquet support.
+Headless QGIS (libraries, Python bindings and `qgis_process`) on a GDAL with Arrow and Parquet support, and the same with QGIS Server.
 
 - [Documentation](./slim/README.md)
