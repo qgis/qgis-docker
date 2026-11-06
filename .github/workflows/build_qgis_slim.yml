@@ -13,7 +13,6 @@ on:
   push:
     branches:
       - main
-      - qgis-slim
     paths:
       - 'slim/**'
       - '.github/workflows/build_qgis_slim.yml'
