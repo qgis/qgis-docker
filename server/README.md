@@ -7,6 +7,9 @@
 The Docker image is built using *Ubuntu 26.04 (resolute)*, *Debian 13 (trixie)* and, for QGIS 3 LTR only, *Ubuntu 24.04 (noble)* and *22.04 (jammy)*, with the official QGIS DEBs from <https://qgis.org/>.
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
+[`qgis/qgis-server-slim`](../slim/README.md#qgis-server-slim) is a smaller variant built from source, also for arm64, with GeoParquet support.
+It shares the configuration of this image, so this documentation applies to both.
+
 ## Requisites
 
 You need **Docker >= 18.04** with `seccomp`. Support for the `statx` syscall, required by Qt 5.10+, may be made necessary in the future. This is generally included in **libseccomp >= 2.3.3**;

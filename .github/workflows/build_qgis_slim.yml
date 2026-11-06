@@ -9,12 +9,20 @@ on:
       - main
     paths:
       - 'slim/**'
+      - 'server/conf/qgis-server-nginx.conf'
+      - 'server/start-xvfb-nginx.sh'
+      - 'server/test/**'
+      - 'tests/test_server_image.sh'
       - '.github/workflows/build_qgis_slim.yml'
   push:
     branches:
       - main
     paths:
       - 'slim/**'
+      - 'server/conf/qgis-server-nginx.conf'
+      - 'server/start-xvfb-nginx.sh'
+      - 'server/test/**'
+      - 'tests/test_server_image.sh'
       - '.github/workflows/build_qgis_slim.yml'
   workflow_dispatch:
 
@@ -24,6 +32,8 @@ concurrency:
 
 env:
   IMAGE: qgis/qgis-slim
+  # built from the same QGIS build, with the same versions and tags
+  SERVER_IMAGE: qgis/qgis-server-slim
   PUSH: ${{ github.event_name != 'pull_request' }}
 
 jobs:
@@ -155,6 +165,7 @@ jobs:
         with:
           context: .
           file: slim/Dockerfile
+          target: slim
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           labels: |
             org.opencontainers.image.version=${{ matrix.qgis.version }}
@@ -167,11 +178,33 @@ jobs:
             type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
           cache-to: type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }},mode=max
 
+      - name: build server image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: slim/Dockerfile
+          target: server
+          build-args: qgis_ref=${{ matrix.qgis.ref }}
+          labels: |
+            org.opencontainers.image.version=${{ matrix.qgis.version }}
+            org.opencontainers.image.revision=${{ matrix.qgis.ref }}
+          load: true
+          tags: ${{ env.SERVER_IMAGE }}:${{ matrix.qgis.name }}
+          cache-from: |
+            type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+            type=gha,scope=qgis-server-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+          cache-to: type=gha,scope=qgis-server-slim-${{ matrix.qgis.name }}-${{ matrix.arch }},mode=max
+
       - name: image size
         run: |
           docker image ls ${IMAGE}:${{ matrix.qgis.name }}
-          SIZE=$(docker image inspect -f '{{ .Size }}' ${IMAGE}:${{ matrix.qgis.name }})
-          echo "${{ matrix.qgis.name }} ${{ matrix.arch }} image size: $(( SIZE / 1024 / 1024 )) MB" >> $GITHUB_STEP_SUMMARY
+          docker image ls ${SERVER_IMAGE}:${{ matrix.qgis.name }}
+          for NAME in ${IMAGE} ${SERVER_IMAGE}; do
+            SIZE=$(docker image inspect -f '{{ .Size }}' ${NAME}:${{ matrix.qgis.name }})
+            echo "${NAME}:${{ matrix.qgis.name }} ${{ matrix.arch }} image size: $(( SIZE / 1024 / 1024 )) MB" >> $GITHUB_STEP_SUMMARY
+          done
           # the largest packages and QGIS directories, in KB
           docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c '
             dpkg-query -Wf "\${Installed-Size}\t\${Package}\n" | sort -n | tail -30
@@ -209,6 +242,24 @@ jobs:
             grep -q "gdal:buffervectors" /tmp/list
           '
 
+      - name: test server
+        timeout-minutes: 15
+        run: bash tests/test_server_image.sh ${SERVER_IMAGE}:${{ matrix.qgis.name }}
+
+      - name: test server Python bindings
+        timeout-minutes: 10
+        run: |
+          docker run --rm -e QT_QPA_PLATFORM=offscreen -v $(pwd)/server/test/data:/io/data ${SERVER_IMAGE}:${{ matrix.qgis.name }} python3 -c '
+          from qgis.core import QgsApplication
+          from qgis.server import QgsBufferServerRequest, QgsBufferServerResponse, QgsServer
+          app = QgsApplication([], False)
+          app.initQgis()
+          request = QgsBufferServerRequest("?MAP=/io/data/test_project/test_project.qgs&SERVICE=WMS&REQUEST=GetCapabilities")
+          response = QgsBufferServerResponse()
+          QgsServer().handleRequest(request, response)
+          assert b"<WMS_Capabilities" in bytes(response.body()), bytes(response.body())
+          '
+
       - name: Login to Docker Hub
         if: ${{ env.PUSH == 'true' }}
         uses: docker/login-action@v4
@@ -223,6 +274,7 @@ jobs:
         with:
           context: .
           file: slim/Dockerfile
+          target: slim
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           labels: |
             org.opencontainers.image.version=${{ matrix.qgis.version }}
@@ -233,18 +285,47 @@ jobs:
             type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
             type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
 
-      - name: export digest
+      - id: push-server
+        name: push server by digest
+        if: ${{ env.PUSH == 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: slim/Dockerfile
+          target: server
+          build-args: qgis_ref=${{ matrix.qgis.ref }}
+          labels: |
+            org.opencontainers.image.version=${{ matrix.qgis.version }}
+            org.opencontainers.image.revision=${{ matrix.qgis.ref }}
+          outputs: type=image,name=${{ env.SERVER_IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: |
+            type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+            type=gha,scope=qgis-server-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+
+      - name: export digests
         if: ${{ env.PUSH == 'true' }}
         run: |
-          mkdir -p ${{ runner.temp }}/digests
+          mkdir -p ${{ runner.temp }}/digests/slim ${{ runner.temp }}/digests/server
           DIGEST="${{ steps.push.outputs.digest }}"
-          touch "${{ runner.temp }}/digests/${DIGEST#sha256:}"
+          touch "${{ runner.temp }}/digests/slim/${DIGEST#sha256:}"
+          DIGEST="${{ steps.push-server.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/server/${DIGEST#sha256:}"
 
       - uses: actions/upload-artifact@v7
         if: ${{ env.PUSH == 'true' }}
         with:
-          name: digest-${{ matrix.qgis.name }}-${{ matrix.arch }}
-          path: ${{ runner.temp }}/digests/*
+          name: digest-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/slim/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ env.PUSH == 'true' }}
+        with:
+          name: digest-server-${{ matrix.qgis.name }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/server/*
           if-no-files-found: error
           retention-days: 1
 
@@ -252,17 +333,24 @@ jobs:
     needs: [versions, build]
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
-    name: push ${{ matrix.qgis.name }} multi-arch image
+    name: push ${{ matrix.image.repository }}:${{ matrix.qgis.name }} multi-arch image
     strategy:
       fail-fast: false
       matrix:
         qgis: ${{ fromJSON(needs.versions.outputs.qgis) }}
+        image:
+          - name: slim
+            repository: qgis/qgis-slim
+          - name: server
+            repository: qgis/qgis-server-slim
+    env:
+      IMAGE: ${{ matrix.image.repository }}
 
     steps:
       - uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digest-${{ matrix.qgis.name }}-*
+          pattern: digest-${{ matrix.image.name }}-${{ matrix.qgis.name }}-*
           merge-multiple: true
 
       - name: Login to Docker Hub
