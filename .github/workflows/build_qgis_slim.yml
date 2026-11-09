@@ -184,7 +184,7 @@ jobs:
         with:
           context: .
           file: slim/Dockerfile
-          target: server
+          target: server-slim
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           labels: |
             org.opencontainers.image.version=${{ matrix.qgis.version }}
@@ -293,7 +293,7 @@ jobs:
         with:
           context: .
           file: slim/Dockerfile
-          target: server
+          target: server-slim
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           labels: |
             org.opencontainers.image.version=${{ matrix.qgis.version }}

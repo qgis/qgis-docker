@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
+# check=skip=SecretsUsedInArgOrEnv
 
 # QGIS built from source on top of a slim GDAL with Arrow and Parquet support, without the desktop application.
 # QGIS is compiled once for both targets:
 # - slim (qgis/qgis-slim): the QGIS libraries, Python bindings and qgis_process
-# - server (qgis/qgis-server-slim): the slim image with QGIS Server, set up as the qgis-server image
+# - server-slim (qgis/qgis-server-slim): the slim image with QGIS Server, set up as the qgis-server image
+#
+# SecretsUsedInArgOrEnv only matches the variable names: QGIS_AUTH_DB_DIR_PATH is a directory, not a secret
 
 ARG os=ubuntu
 ARG release=resolute
@@ -198,7 +201,7 @@ RUN for PLUGIN in gdalprovider qgisprovider; do \
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # QGIS Server on the slim image, with the Nginx configuration, start script and settings of the qgis-server image
-FROM slim AS server
+FROM slim AS server-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \

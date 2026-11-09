@@ -81,11 +81,11 @@ Without translations, the server only answers in English.
 
 ## Building
 
-The `slim` and `server` targets build each image:
+The `slim` and `server-slim` targets build each image:
 
 ```sh
 docker build -f slim/Dockerfile --target slim -t qgis/qgis-slim .
-docker build -f slim/Dockerfile --target server -t qgis/qgis-server-slim .
+docker build -f slim/Dockerfile --target server-slim -t qgis/qgis-server-slim .
 ```
 
 The `qgis_ref` (branch, tag or commit) and `gdal_version` build arguments select the versions to build.
