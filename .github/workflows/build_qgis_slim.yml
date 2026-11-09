@@ -34,7 +34,8 @@ env:
   IMAGE: qgis/qgis-slim
   # built from the same QGIS build, with the same versions and tags
   SERVER_IMAGE: qgis/qgis-server-slim
-  PUSH: ${{ github.event_name != 'pull_request' }}
+  # TODO: remove the server-slim branch once merged, it publishes qgis/qgis-server-slim from its pull request
+  PUSH: ${{ github.event_name != 'pull_request' || github.head_ref == 'server-slim' }}
 
 jobs:
   versions:
@@ -331,7 +332,8 @@ jobs:
 
   push:
     needs: [versions, build]
-    if: ${{ github.event_name != 'pull_request' }}
+    # TODO: remove the server-slim branch once merged
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'server-slim' }}
     runs-on: ubuntu-latest
     name: push ${{ matrix.image.repository }}:${{ matrix.qgis.name }} multi-arch image
     strategy:
