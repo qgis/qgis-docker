@@ -1,0 +1,12 @@
+[general]
+name=Response header
+description=Adds a header to the QGIS Server responses, to test that the Python plugins are loaded
+about=Used by tests/test_server_image.sh
+version=1.0
+qgisMinimumVersion=3.24
+qgisMaximumVersion=4.99
+supportsQt6=yes
+author=QGIS
+email=info@qgis.org
+repository=https://github.com/qgis/qgis-docker
+server=True

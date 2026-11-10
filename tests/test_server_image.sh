@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Functional tests of a QGIS Server image, shared by the qgis-server and qgis-server-slim images:
-# OGC services, project routes, reverse proxy headers, landing page, non-root user and CORS.
+# OGC services, project routes, reverse proxy headers, landing page, non-root user, CORS and Python plugins.
 #
 # Usage:  bash tests/test_server_image.sh IMAGE
 # Requires: docker, curl and a free port 8010
@@ -115,5 +115,11 @@ HEADERS=$(curl -s -D - -o /dev/null "${URL}/ogc/test_project?${WMS_CAPABILITIES}
 
 echo "Preflight requests are answered by Nginx"
 [[ $(curl -s -o /dev/null -w '%{http_code}' -X OPTIONS "${URL}/ogc/test_project") -eq 204 ]]
+
+start python-plugins -v "${TEST_DIR}/data:/io/data" -v "${TEST_DIR}/plugins:/io/plugins"
+
+echo "Python server plugins"
+HEADERS=$(curl -s -D - -o /dev/null "${URL}/ogc/test_project?${WMS_CAPABILITIES}")
+[[ ${HEADERS,,} == *'x-qgis-test-plugin: loaded'* ]]
 
 echo "All server tests passed"
