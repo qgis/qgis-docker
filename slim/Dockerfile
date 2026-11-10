@@ -2,9 +2,10 @@
 # check=skip=SecretsUsedInArgOrEnv
 
 # QGIS built from source on top of a slim GDAL with Arrow and Parquet support, without the desktop application.
-# QGIS is compiled once for both targets:
-# - slim (qgis/qgis-slim): the QGIS libraries, Python bindings and qgis_process
-# - server-slim (qgis/qgis-server-slim): the slim image with QGIS Server, set up as the qgis-server image
+# QGIS is compiled twice, for three targets:
+# - slim (qgis/qgis-slim): QGIS with its gui library, which the processing plugin requires, and qgis_process
+# - core-slim (qgis/qgis-core-slim): QGIS without its gui library, the processing plugin and qgis_process
+# - server-slim (qgis/qgis-server-slim): core-slim with QGIS Server, set up as the qgis-server image
 #
 # SecretsUsedInArgOrEnv only matches the variable names: QGIS_AUTH_DB_DIR_PATH is a directory, not a secret
 
@@ -63,7 +64,8 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
     && DEB_PYTHON_INSTALL_LAYOUT=deb_system DESTDIR=/install cmake --install build --strip \
     && rm -rf /src/gdal
 
-FROM gdal AS builder
+# The dependencies of both QGIS builds
+FROM gdal AS build-deps
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -74,68 +76,55 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       python3-pyqt6.qtpositioning python3-pyqt6.sip python3-pyqtbuild sip-tools \
     && rm -rf /var/lib/apt/lists/*
 
+COPY slim/build-qgis.sh /usr/local/bin/build-qgis.sh
+
+# QGIS with its gui library, for the slim image
+FROM build-deps AS builder
+
+ARG qgis_ref=master
+RUN --mount=type=cache,id=ccache,target=/root/.ccache \
+    build-qgis.sh ${qgis_ref} \
+      # the gui library is required by the processing plugin
+      -DWITH_GUI=ON \
+      -DWITH_QGIS_PROCESS=ON \
+      -DWITH_SERVER=OFF
+
+# Qt Multimedia libraries are copied, not installed from their packages, to leave out the FFmpeg plugin and codecs
+COPY slim/runtime-packages.sh /usr/local/bin/runtime-packages.sh
+RUN mkdir /runtime \
+    && runtime-packages.sh /install libqt6multimedia6 libqt6multimediawidgets6 libqt6spatialaudio6 python3-pyqt6.qtmultimedia \
+      > /runtime/packages.txt \
+    && cat /runtime/packages.txt
+
+# QGIS without its gui library, for the core and server images
+FROM build-deps AS builder-core
+
 # Node.js and Yarn 1 build the web app of the server landing page: the lockfiles of QGIS are not supported by
 # the Yarn 4 of Ubuntu
 COPY --from=node:22-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:22-slim /opt/ /opt/
 RUN ln -s /opt/yarn-v*/bin/yarn /usr/local/bin/yarn && yarn --version
 
-# qgis_ref can be a branch, a tag or a commit
 ARG qgis_ref=master
 RUN --mount=type=cache,id=ccache,target=/root/.ccache \
-    mkdir -p /src/qgis && cd /src/qgis \
-    && git init -q \
-    && git fetch -q --depth 1 https://github.com/qgis/QGIS.git ${qgis_ref} \
-    && git checkout -q FETCH_HEAD \
-    && cmake -S . -B build -G Ninja \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DUSE_CCACHE=ON \
-      # silence the ABI notes of GCC on arm64, they exceed the log limit of BuildKit
-      -DCXX_EXTRA_FLAGS=-Wno-psabi \
-      -DENABLE_TESTS=OFF \
-      -DWITH_DESKTOP=OFF \
+    build-qgis.sh ${qgis_ref} \
+      -DWITH_GUI=OFF \
+      # without the processing plugin, qgis_process would only have the C++ algorithms
+      -DWITH_QGIS_PROCESS=OFF \
       # the server files are split from the install below, for the server image only
       -DWITH_SERVER=ON \
       -DWITH_SERVER_LANDINGPAGE_WEBAPP=ON \
       -DYARN_INSTALL_OPT=--frozen-lockfile \
       # where the packages, and so the nginx configuration of the qgis-server image, have it
-      -DQGIS_CGIBIN_SUBDIR=lib/cgi-bin \
-      -DWITH_3D=OFF \
-      -DWITH_QUICK=OFF \
-      -DWITH_CUSTOM_WIDGETS=OFF \
-      # the gui library is required by the processing plugin
-      -DWITH_GUI=ON \
-      -DWITH_ANALYSIS=ON \
-      -DWITH_BINDINGS=ON \
-      -DWITH_QGIS_PROCESS=ON \
-      -DWITH_QTWEBENGINE=OFF \
-      -DWITH_QTSERIALPORT=OFF \
-      -DWITH_PDAL=OFF \
-      -DWITH_DRACO=OFF \
-      -DWITH_EXIV2=OFF \
-      -DWITH_GSL=OFF \
-      -DWITH_GRASS7=OFF \
-      -DWITH_GRASS8=OFF \
-      -DWITH_INTERNAL_SPATIALINDEX=ON \
-      -DUSE_OPENCL=OFF \
-    && cmake --build build \
-    && DESTDIR=/install cmake --install build --strip \
-    && rm -rf /src/qgis
+      -DQGIS_CGIBIN_SUBDIR=lib/cgi-bin
 
-# Drop what is only useful for development or the desktop application
-RUN cd /install/usr \
-    && rm -rf include lib/cmake lib/pkgconfig lib/*/cmake lib/*/pkgconfig share/qgis/i18n share/qgis/resources/cpt-city-qgis-min \
-      share/qgis/python/console share/qgis/python/pyplugin_installer share/qgis/python/qsci_apis \
-      share/qgis/python/plugins/db_manager share/qgis/python/plugins/grassprovider share/qgis/python/plugins/MetaSearch \
-      # the sources of the landing page web app, before QGIS 4.4
-      share/qgis/resources/server/src \
-    # Python modules are not stripped by the install
-    && (find /install -type f -name '*.so*' | xargs strip --strip-unneeded 2>/dev/null || true) \
-    # one du per level, as du does not count twice the same directory
-    && for DIR in /install/usr /install/usr/lib /install/usr/share /install/usr/share/qgis /install/usr/share/qgis/python; do \
-      du -sh ${DIR}/*; \
-    done | sort -h | tail -30
+# The Python plugins require the gui library, and so does qgis.utils, which disables Python in QGIS Server
+# (https://github.com/qgis/QGIS/issues/40450): its import is made optional, its classes are only used on the desktop
+RUN cd /install/usr/share/qgis/python \
+    && rm -rf plugins \
+    && sed -i -E 's/^from qgis\.gui import (.+)$/try:\n    from qgis.gui import \1\nexcept ImportError:\n    pass/' qgis/utils.py \
+    # fails if qgis.gui is still imported at the top level
+    && ! grep -nE '^(from|import) qgis\.gui' qgis/utils.py
 
 # QGIS Server is moved to its own staging directory, which only the server image copies:
 # a path that does not exist anymore fails the build
@@ -147,7 +136,6 @@ RUN cd /install \
     && test -f /install-server/usr/share/qgis/resources/server/api/ogc/static/landingpage/index.html \
     && du -sh /install-server/usr/*/* /install-server/usr/share/qgis/*/*
 
-# Qt Multimedia libraries are copied, not installed from their packages, to leave out the FFmpeg plugin and codecs
 COPY slim/runtime-packages.sh /usr/local/bin/runtime-packages.sh
 RUN mkdir /runtime \
     && runtime-packages.sh /install libqt6multimedia6 libqt6multimediawidgets6 libqt6spatialaudio6 python3-pyqt6.qtmultimedia \
@@ -155,7 +143,8 @@ RUN mkdir /runtime \
     && runtime-packages.sh /install-server > /runtime/server-packages.txt \
     && tail -n +1 /runtime/*.txt
 
-FROM ${os}:${release} AS slim
+# The base of the images
+FROM ${os}:${release} AS runtime
 LABEL maintainer="OPENGIS.ch <info@opengis.ch>"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -171,16 +160,12 @@ RUN for PACKAGE in libegl-mesa0 libgbm1 libglx-mesa0; do \
     done \
     && rm -rf /tmp/*
 
-RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
-    apt-get update \
-    && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
-      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite pyqt6-dev-tools python3 python3-numpy python3-pip \
-      python3-psycopg python3-psycopg2 python3-pydantic python3-pyqt6 python3-pyqt6.qsci python3-pyqt6.qtpositioning \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      ca-certificates libqca-qt6-plugins libqt6sql6-sqlite python3 python3-numpy python3-pip \
+      python3-psycopg python3-psycopg2 python3-pydantic python3-pyqt6 python3-pyqt6.qtpositioning \
       python3-yaml qt6-qpa-plugins tini xvfb \
     && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /install/ /
-RUN ldconfig
 
 ENV LANG=C.UTF-8
 ENV QGIS_PREFIX_PATH=/usr
@@ -191,25 +176,49 @@ ENV QT_QPA_PLATFORM=offscreen
 # Qt Multimedia looks for PipeWire, which is not installed
 ENV QT_LOGGING_RULES=qt.multimedia.symbolsresolver.warning=false
 
+# an init process forwards the signals and reaps the zombie processes, xvfb-run hangs if it is the PID 1
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+FROM runtime AS slim
+
+ARG DEBIAN_FRONTEND=noninteractive
+# the processing plugin loads its forms with the uic module of pyqt6-dev-tools,
+# the Python bindings of the gui library require QScintilla
+RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
+    apt-get update \
+    && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends pyqt6-dev-tools python3-pyqt6.qsci \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /install/ /
+RUN ldconfig
+
 # qgis_process only loads the Python processing providers enabled in the user profile,
 # the GDAL and QGIS providers are split from the processing plugin since QGIS 4.4
 RUN for PLUGIN in gdalprovider qgisprovider; do \
       if [ -d /usr/share/qgis/python/plugins/${PLUGIN} ]; then qgis_process plugins enable ${PLUGIN} || exit 1; fi; \
     done
 
-# an init process forwards the signals and reaps the zombie processes, xvfb-run hangs if it is the PID 1
-ENTRYPOINT ["/usr/bin/tini", "--"]
-
-# QGIS Server on the slim image, with the Nginx configuration, start script and settings of the qgis-server image
-FROM slim AS server-slim
+FROM runtime AS core-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN --mount=type=bind,from=builder,source=/runtime,target=/runtime \
+RUN --mount=type=bind,from=builder-core,source=/runtime,target=/runtime \
+    apt-get update \
+    && xargs -a /runtime/packages.txt apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder-core /install/ /
+RUN ldconfig
+
+# QGIS Server on the core image, with the Nginx configuration, start script and settings of the qgis-server image
+FROM core-slim AS server-slim
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN --mount=type=bind,from=builder-core,source=/runtime,target=/runtime \
     apt-get update \
     && xargs -a /runtime/server-packages.txt apt-get install -y --no-install-recommends fontconfig nginx spawn-fcgi \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /install-server/ /
+COPY --from=builder-core /install-server/ /
 RUN ldconfig
 
 COPY server/conf/qgis-server-nginx.conf /etc/nginx/nginx.conf

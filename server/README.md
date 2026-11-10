@@ -8,7 +8,8 @@ The Docker image is built using *Ubuntu 26.04 (resolute)*, *Debian 13 (trixie)* 
 It includes *Nginx* and *Xvfb* and can be used as a standalone service (via HTTP TCP port 80) or as *FCGI* backend (via TCP port 9993).
 
 [`qgis/qgis-server-slim`](../slim/README.md#qgis-server-slim) is a smaller variant built from source, also for arm64, with GeoParquet support.
-It shares the configuration of this image, so this documentation applies to both.
+It shares the configuration of this image, so this documentation applies to both,
+except that it does not include processing, which some Python server plugins use.
 
 ## Requisites
 

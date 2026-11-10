@@ -31,10 +31,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # the versions are detected from the tags of qgis/qgis-slim, the three images have the same,
+  # the build jobs set it to the image of their QGIS build
   IMAGE: qgis/qgis-slim
-  # built from the same QGIS build, with the same versions and tags
+  # built from the same QGIS build as qgis/qgis-core-slim
   SERVER_IMAGE: qgis/qgis-server-slim
-  # TODO: remove the server-slim branch once merged, it publishes qgis/qgis-server-slim from its pull request
+  # TODO: remove the server-slim branch once merged, it publishes the images from its pull request
   PUSH: ${{ github.event_name != 'pull_request' || github.head_ref == 'server-slim' }}
 
 jobs:
@@ -99,7 +101,7 @@ jobs:
 
   build:
     needs: versions
-    name: build ${{ matrix.qgis.name }} ${{ matrix.arch }}
+    name: build ${{ matrix.target }} ${{ matrix.qgis.name }} ${{ matrix.arch }}
     # compiling QGIS under emulation would be too slow, each architecture is built on its own runner
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     timeout-minutes: 360
@@ -108,6 +110,19 @@ jobs:
       matrix:
         qgis: ${{ fromJSON(needs.versions.outputs.qgis) }}
         arch: [amd64, arm64]
+        # QGIS is built with its gui library, which the processing plugin requires, and without it for QGIS Server
+        build: [slim, core]
+        include:
+          - build: slim
+            builder: builder
+            target: slim
+            image: qgis/qgis-slim
+          - build: core
+            builder: builder-core
+            target: core-slim
+            image: qgis/qgis-core-slim
+    env:
+      IMAGE: ${{ matrix.image }}
 
     steps:
       - uses: actions/checkout@v7
@@ -125,9 +140,10 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ccache
-          key: qgis-slim-ccache-${{ matrix.arch }}-${{ matrix.qgis.name }}-${{ github.run_id }}
+          key: qgis-slim-ccache-${{ matrix.arch }}-${{ matrix.build }}-${{ matrix.qgis.name }}-${{ github.run_id }}
           restore-keys: |
-            qgis-slim-ccache-${{ matrix.arch }}-${{ matrix.qgis.name }}-
+            qgis-slim-ccache-${{ matrix.arch }}-${{ matrix.build }}-${{ matrix.qgis.name }}-
+            qgis-slim-ccache-${{ matrix.arch }}-${{ matrix.build }}-
             qgis-slim-ccache-${{ matrix.arch }}-
 
       - name: inject ccache into BuildKit
@@ -154,19 +170,19 @@ jobs:
         with:
           context: .
           file: slim/Dockerfile
-          target: builder
+          target: ${{ matrix.builder }}
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           cache-from: |
             type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
-          cache-to: type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }},mode=max
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.builder }}-${{ matrix.arch }}
+          cache-to: type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.builder }}-${{ matrix.arch }},mode=max
 
       - name: build image
         uses: docker/build-push-action@v7
         with:
           context: .
           file: slim/Dockerfile
-          target: slim
+          target: ${{ matrix.target }}
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           labels: |
             org.opencontainers.image.version=${{ matrix.qgis.version }}
@@ -175,11 +191,12 @@ jobs:
           tags: ${{ env.IMAGE }}:${{ matrix.qgis.name }}
           cache-from: |
             type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
-          cache-to: type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }},mode=max
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.builder }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.target }}-${{ matrix.arch }}
+          cache-to: type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.target }}-${{ matrix.arch }},mode=max
 
       - name: build server image
+        if: ${{ matrix.build == 'core' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -193,16 +210,19 @@ jobs:
           tags: ${{ env.SERVER_IMAGE }}:${{ matrix.qgis.name }}
           cache-from: |
             type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.builder }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.target }}-${{ matrix.arch }}
             type=gha,scope=qgis-server-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
           cache-to: type=gha,scope=qgis-server-slim-${{ matrix.qgis.name }}-${{ matrix.arch }},mode=max
 
       - name: image size
         run: |
-          docker image ls ${IMAGE}:${{ matrix.qgis.name }}
-          docker image ls ${SERVER_IMAGE}:${{ matrix.qgis.name }}
-          for NAME in ${IMAGE} ${SERVER_IMAGE}; do
+          IMAGES=${IMAGE}
+          if [[ ${{ matrix.build }} == core ]]; then
+            IMAGES+=" ${SERVER_IMAGE}"
+          fi
+          for NAME in ${IMAGES}; do
+            docker image ls ${NAME}:${{ matrix.qgis.name }}
             SIZE=$(docker image inspect -f '{{ .Size }}' ${NAME}:${{ matrix.qgis.name }})
             echo "${NAME}:${{ matrix.qgis.name }} ${{ matrix.arch }} image size: $(( SIZE / 1024 / 1024 )) MB" >> $GITHUB_STEP_SUMMARY
           done
@@ -214,7 +234,9 @@ jobs:
 
       - name: test PyQGIS
         timeout-minutes: 10
-        run: docker run --rm -v $(pwd)/slim/test:/test ${IMAGE}:${{ matrix.qgis.name }} python3 /test/test_slim.py
+        run: |
+          docker run --rm -v $(pwd)/slim/test:/test ${IMAGE}:${{ matrix.qgis.name }} \
+            python3 /test/test_slim.py ${{ matrix.build == 'core' && '--core' || '' }}
 
       - name: test Python packages
         timeout-minutes: 10
@@ -230,6 +252,7 @@ jobs:
           '
 
       - name: test qgis_process
+        if: ${{ matrix.build == 'slim' }}
         timeout-minutes: 10
         run: |
           docker run --rm -v $(pwd)/server/test/data:/data ${IMAGE}:${{ matrix.qgis.name }} bash -c '
@@ -244,10 +267,12 @@ jobs:
           '
 
       - name: test server
+        if: ${{ matrix.build == 'core' }}
         timeout-minutes: 15
         run: bash tests/test_server_image.sh ${SERVER_IMAGE}:${{ matrix.qgis.name }}
 
       - name: test server Python bindings
+        if: ${{ matrix.build == 'core' }}
         timeout-minutes: 10
         run: |
           docker run --rm -e QT_QPA_PLATFORM=offscreen -v $(pwd)/server/test/data:/io/data ${SERVER_IMAGE}:${{ matrix.qgis.name }} python3 -c '
@@ -275,7 +300,7 @@ jobs:
         with:
           context: .
           file: slim/Dockerfile
-          target: slim
+          target: ${{ matrix.target }}
           build-args: qgis_ref=${{ matrix.qgis.ref }}
           labels: |
             org.opencontainers.image.version=${{ matrix.qgis.version }}
@@ -283,12 +308,12 @@ jobs:
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
           cache-from: |
             type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.builder }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.target }}-${{ matrix.arch }}
 
       - id: push-server
         name: push server by digest
-        if: ${{ env.PUSH == 'true' }}
+        if: ${{ env.PUSH == 'true' && matrix.build == 'core' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -301,29 +326,33 @@ jobs:
           outputs: type=image,name=${{ env.SERVER_IMAGE }},push-by-digest=true,name-canonical=true,push=true
           cache-from: |
             type=gha,scope=qgis-slim-gdal-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-builder-${{ matrix.arch }}
-            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.builder }}-${{ matrix.arch }}
+            type=gha,scope=qgis-slim-${{ matrix.qgis.name }}-${{ matrix.target }}-${{ matrix.arch }}
             type=gha,scope=qgis-server-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
 
+      # one directory, and artifact, per image
       - name: export digests
         if: ${{ env.PUSH == 'true' }}
         run: |
-          mkdir -p ${{ runner.temp }}/digests/slim ${{ runner.temp }}/digests/server
+          mkdir -p ${{ runner.temp }}/digests/${{ matrix.build }}
           DIGEST="${{ steps.push.outputs.digest }}"
-          touch "${{ runner.temp }}/digests/slim/${DIGEST#sha256:}"
-          DIGEST="${{ steps.push-server.outputs.digest }}"
-          touch "${{ runner.temp }}/digests/server/${DIGEST#sha256:}"
+          touch "${{ runner.temp }}/digests/${{ matrix.build }}/${DIGEST#sha256:}"
+          if [[ ${{ matrix.build }} == core ]]; then
+            mkdir -p ${{ runner.temp }}/digests/server
+            DIGEST="${{ steps.push-server.outputs.digest }}"
+            touch "${{ runner.temp }}/digests/server/${DIGEST#sha256:}"
+          fi
 
       - uses: actions/upload-artifact@v7
         if: ${{ env.PUSH == 'true' }}
         with:
-          name: digest-slim-${{ matrix.qgis.name }}-${{ matrix.arch }}
-          path: ${{ runner.temp }}/digests/slim/*
+          name: digest-${{ matrix.build }}-${{ matrix.qgis.name }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/${{ matrix.build }}/*
           if-no-files-found: error
           retention-days: 1
 
       - uses: actions/upload-artifact@v7
-        if: ${{ env.PUSH == 'true' }}
+        if: ${{ env.PUSH == 'true' && matrix.build == 'core' }}
         with:
           name: digest-server-${{ matrix.qgis.name }}-${{ matrix.arch }}
           path: ${{ runner.temp }}/digests/server/*
@@ -340,9 +369,12 @@ jobs:
       fail-fast: false
       matrix:
         qgis: ${{ fromJSON(needs.versions.outputs.qgis) }}
+        # the name is the one of the digest artifacts
         image:
           - name: slim
             repository: qgis/qgis-slim
+          - name: core
+            repository: qgis/qgis-core-slim
           - name: server
             repository: qgis/qgis-server-slim
     env:

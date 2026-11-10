@@ -39,8 +39,10 @@ Ubuntu Questing (25.10) has reached its end of life: the `*-questing` tags are n
 ## Slim
 
 [![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis-slim)](https://hub.docker.com/r/qgis/qgis-slim)
+[![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis-core-slim)](https://hub.docker.com/r/qgis/qgis-core-slim)
 [![Docker Hub](https://img.shields.io/docker/pulls/qgis/qgis-server-slim)](https://hub.docker.com/r/qgis/qgis-server-slim)
 
-Headless QGIS (libraries, Python bindings and `qgis_process`) on a GDAL with Arrow and Parquet support, and the same with QGIS Server.
+Headless QGIS (libraries, Python bindings and `qgis_process`) on a GDAL with Arrow and Parquet support,
+the same without the gui library and processing, and QGIS Server on the latter.
 
 - [Documentation](./slim/README.md)
