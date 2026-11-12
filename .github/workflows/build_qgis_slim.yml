@@ -184,7 +184,8 @@ jobs:
 
       - name: test Python packages
         timeout-minutes: 10
-        run: docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c 'pip install --no-deps --quiet humanize && python3 -c "import humanize, psycopg, psycopg2, pydantic, pytest, yaml"
+        run: docker run --rm ${IMAGE}:${{ matrix.qgis.name }} bash -c 'pip install --no-deps --quiet humanize && python3 -c "import humanize, psycopg, psycopg2, pydantic, pytest, yaml" && pytest --version'
+
       - name: test xvfb
         timeout-minutes: 10
         run: |
