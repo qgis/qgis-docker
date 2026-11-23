@@ -39,9 +39,9 @@ jobs:
       - id: versions
         name: determine QGIS versions
         run: |
-          # the versions are detected by the scheduled runs, the other runs rebuild the published images:
+          # the versions are detected by the scheduled and manual runs, the other runs rebuild the published images:
           # the nightly, stable and ltr ones, with all the tags sharing their digest
-          if [[ ${GITHUB_EVENT_NAME} != schedule ]]; then
+          if [[ ${GITHUB_EVENT_NAME} != schedule && ${GITHUB_EVENT_NAME} != workflow_dispatch ]]; then
             QGIS=$(curl -fsSL "https://hub.docker.com/v2/repositories/${IMAGE}/tags?page_size=100" \
               | jq -c '[.results | group_by(.digest)[] | map(.name) | select(any(.[]; IN("nightly", "stable", "ltr")))
                   | {name: map(select(. == "nightly" or test("^[0-9]+\\.[0-9]+$")))[0], tags: join(" ")}]')
