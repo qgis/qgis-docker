@@ -95,6 +95,7 @@ RUN --mount=type=cache,id=ccache,target=/root/.ccache \
       -DWITH_QGIS_PROCESS=ON \
       -DWITH_QTWEBENGINE=OFF \
       -DWITH_QTSERIALPORT=OFF \
+      -DWITH_WAYLAND=OFF \
       -DWITH_PDAL=OFF \
       -DWITH_DRACO=OFF \
       -DWITH_EXIV2=OFF \
